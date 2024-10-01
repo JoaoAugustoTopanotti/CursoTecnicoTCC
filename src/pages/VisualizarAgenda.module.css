@@ -1,0 +1,45 @@
+.visualizarAgenda {
+    padding: 20px;
+  }
+  
+  .notification {
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  .datePickerContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  .datePicker {
+    width: 250px;
+    padding: 10px;
+    font-size: 16px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .agendamentosTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+  }
+  
+  .agendamentosTable th, .agendamentosTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .agendamentosTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  

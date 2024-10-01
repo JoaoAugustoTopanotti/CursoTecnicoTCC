@@ -1,0 +1,57 @@
+/* src/pages/Gerente.module.css */
+.gerenteContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .gerenteContent {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .gerenteMain {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px; /* Ajuste o tamanho máximo conforme necessário */
+  }
+  
+  .gerenteImage {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .gerenteImage img {
+    max-width: 400px; /* Aumenta o tamanho da imagem */
+    border-radius: 8px;
+    align-items: baseline;
+  }
+  
+  .gerenteButtons {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .gerenteButtons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .gerenteButtons button:hover {
+    background-color: #45a049;
+  }
+  
