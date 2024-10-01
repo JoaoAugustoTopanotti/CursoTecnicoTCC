@@ -1,0 +1,49 @@
+/* src/pages/Produto.module.css */
+.productPage {
+  padding: 20px;
+}
+
+.productContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.productImageContainer {
+  flex: 1;
+}
+
+.productImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.productInfo {
+  flex: 2;
+}
+
+.buyButton, .addToCartButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px 0;
+}
+
+.addToCartButton {
+  display: flex;
+  align-items: center;
+}
+
+.cartIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.buyButton:hover, .addToCartButton:hover {
+  background-color: #0056b3;
+}

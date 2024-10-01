@@ -1,0 +1,16 @@
+/* src/pages/Login.module.css */
+.button {
+    background-color: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .button:hover {
+    background-color: #007bff;
+    color: white;
+  }
+  
