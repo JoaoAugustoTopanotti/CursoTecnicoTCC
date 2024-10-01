@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "agroshop-tramontin-fd79e",
+    "firebase deploy --only functions": "agroshop-tramontin-fd79e"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}
