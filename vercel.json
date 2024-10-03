@@ -9,7 +9,7 @@
       }
     },
     {
-      "src": "pages/api/*.js",
+      "src": "src/pages/api/*.js",
       "use": "@vercel/node"
     }
   ],
@@ -20,7 +20,7 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/pages/api/$1"
+      "dest": "/src/pages/api/$1"
     },
     {
       "src": "/(.*)",
