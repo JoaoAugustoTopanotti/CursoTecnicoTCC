@@ -1,9 +1,1 @@
-{
-  "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/login": "pages/login.js",
-  "/produtos/[id]": "pages/produtos/[id].js",
-  "/api/criarCheckoutSession": "pages/api/criarCheckoutSession.js"
-}
+{"/_app":"pages/_app.js","/_error":"pages/_error.js","/adcPet":"pages/adcPet.html","/agendamento":"pages/agendamento.html","/home":"pages/home.html","/api/criarCheckoutSession":"pages/api/criarCheckoutSession.js","/cart":"pages/cart.html","/login":"pages/login.html","/api/processPayment":"pages/api/processPayment.js","/faturamento":"pages/faturamento.html","/":"pages/index.html","/gerente":"pages/gerente.html","/register":"pages/register.html","/vendaConsumidor":"pages/vendaConsumidor.html","/produtos/[id]":"pages/produtos/[id].html","/visualizarAgenda":"pages/visualizarAgenda.html","/api/webhook":"pages/api/webhook.js","/_document":"pages/_document.js","/404":"pages/404.html"}
