@@ -9,6 +9,11 @@ self.__BUILD_MANIFEST = {
   "lowPriorityFiles": [],
   "rootMainFiles": [],
   "pages": {
+    "/": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/index.js"
+    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -19,15 +24,20 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/adcPet": [
+    "/faturamento": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/adcPet.js"
+      "static/chunks/pages/faturamento.js"
     ],
     "/gerente": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/gerente.js"
+    ],
+    "/login": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/login.js"
     ],
     "/visualizarAgenda": [
       "static/chunks/webpack.js",
