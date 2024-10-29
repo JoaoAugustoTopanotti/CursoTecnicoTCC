@@ -3,6 +3,7 @@ service cloud.firestore {
     // Permite leitura e escrita apenas para usuários autenticados e apenas em seus próprios documentos
     match /Usuario/{userId} {
       allow read, write: if request.auth != null && (request.auth.uid == userId || isManager());
+      allow read, write: if request.auth != null && (request.auth.uid == UsuarioID || isSeller());
     }
     
 		// Permite leitura e escrita na coleção "Agendamentos" para usuários autenticados e gerentes
@@ -16,6 +17,7 @@ service cloud.firestore {
     match /Pets/{petId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && (request.resource.data.UsuarioID == request.auth.uid || isManager());
+      allow write: if request.auth != null && (request.resource.data.UsuarioID == request.auth.uid || isSeller());
     }
 
     // Permite leitura de produtos a qualquer um e escrita apenas para usuários autenticados
@@ -49,7 +51,12 @@ service cloud.firestore {
     function isManager() {
       return exists(/databases/$(database)/documents/Gerente/$(request.auth.uid));
     }
-
+		
+    // Função para verificar se o usuário é um Funcionário
+    function isSeller() {
+    	return exists(/database/$(database)/documents/Vendedor/$(request.auth.uid));
+    }
+    
     // Impede qualquer leitura e escrita em documentos não especificados acima
     match /{document=**} {
       allow read, write: if false;

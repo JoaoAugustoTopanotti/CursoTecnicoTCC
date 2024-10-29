@@ -1,0 +1,155 @@
+import { buffer } from 'micro'
+import * as admin from 'firebase-admin'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+export const config = {
+  api: {
+    bodyParser: false, // Desativa o bodyParser para lidar com o Stripe webhook
+  },
+}
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+
+if (!admin.apps.length) {
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  const serviceAccount = require('../../../config/firebaseSecret.json')
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  })
+}
+
+export default async function handler(req, res) {
+  if (req.method === 'POST') {
+    let buf
+    try {
+      buf = await buffer(req)
+    } catch (err) {
+      console.error('Erro ao obter o buffer:', err.message)
+      return res.status(500).send('Erro ao processar o webhook.')
+    }
+
+    const sig = req.headers['stripe-signature']
+    let event
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        buf,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      )
+    } catch (err) {
+      console.error('Verificação da assinatura do webhook falhou:', err.message)
+      return res.status(400).send(Erro no Webhook: ${err.message})
+    }
+
+    console.log('Evento Stripe recebido:', event.type)
+
+    // Verificação e tratamento de eventos
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await handleCheckoutSessionCompleted(event)
+        break
+
+      case 'checkout.session.async_payment_succeeded':
+        console.log('Pagamento assíncrono sucedido:', event.data.object)
+        break
+
+      case 'checkout.session.async_payment_failed':
+        console.log('Pagamento assíncrono falhou:', event.data.object)
+        break
+
+      case 'payment_intent.succeeded':
+        console.log('Intento de pagamento bem-sucedido:', event.data.object)
+        break
+
+      case 'payment_intent.payment_failed':
+        console.log('Intento de pagamento falhou:', event.data.object)
+        break
+
+      default:
+        console.warn('Tipo de evento não tratado:', event.type)
+    }
+
+    // Responder à Stripe que o webhook foi processado com sucesso
+    res.status(200).json({ received: true })
+  } else {
+    res.setHeader('Allow', ['POST'])
+    res.status(405).end(Método ${req.method} não permitido)
+  }
+}
+
+// Função para tratar o evento checkout.session.completed
+async function handleCheckoutSessionCompleted(event) {
+  const session = event.data.object
+
+  console.log('Dados da sessão de checkout:', session)
+
+  try {
+    // Adicionando uma verificação para garantir que o metadata esteja presente
+    if (!session.metadata || !session.metadata.produtoId) {
+      throw new Error('Produto ID não encontrado no metadata.')
+    }
+
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      limit: 1, // Define a quantidade de itens a ser listada (ajuste conforme necessário)
+    })
+
+    if (!lineItems.data || lineItems.data.length === 0) {
+      throw new Error('Nenhum item encontrado na sessão de checkout.')
+    }
+
+    console.log('Itens da sessão de checkout:', lineItems)
+
+    const produtoId = session.metadata.produtoId // Obtem o produtoId do metadata
+    const quantidadeComprada = lineItems.data[0].quantity
+
+    console.log('Produto ID recebido do metadata:', produtoId)
+    console.log('Quantidade comprada:', quantidadeComprada)
+
+    const produtoRef = admin.firestore().doc(Produtos/${produtoId})
+
+    await admin.firestore().runTransaction(async transaction => {
+      const produtoSnap = await transaction.get(produtoRef)
+
+      if (!produtoSnap.exists) {
+        throw new Error('Produto não encontrado.')
+      }
+
+      const produtoData = produtoSnap.data()
+      const novaQuantidade = produtoData.Quantidade - quantidadeComprada
+
+      if (novaQuantidade < 0) {
+        throw new Error('Estoque insuficiente.')
+      }
+
+      // Atualiza a quantidade no estoque
+      transaction.update(produtoRef, { Quantidade: novaQuantidade })
+
+      // Registro de venda na coleção 'Vendas'
+      const vendaRef = admin.firestore().collection('Vendas')
+      const vendaData = {
+        Itens: [
+          {
+            produtoId,
+            Nome: produtoData.Nome,
+            Descrição: produtoData.Descrição,
+            Imagem: produtoData.Imagem,
+            Quantidade: quantidadeComprada,
+            Preço: session.amount_total / 100, // Preço total em reais
+            data: admin.firestore.Timestamp.now(),
+          },
+        ],
+      }
+
+      // Adiciona a venda à coleção
+      await vendaRef.add(vendaData)
+    })
+
+    console.log('Estoque atualizado e venda registrada com sucesso.')
+  } catch (error) {
+    console.error('Erro ao processar o pagamento:', error.message)
+  }
+}

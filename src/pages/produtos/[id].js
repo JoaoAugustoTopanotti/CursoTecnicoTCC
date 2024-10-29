@@ -11,6 +11,7 @@ const Produto = () => {
   const { id } = router.query // Pega o ID da URL
   const [produto, setProduto] = useState(null)
   const [carregando, setCarregando] = useState(true)
+  const [quantidade, setQuantidade] = useState(1) // Adicionar estado para quantidade
 
   useEffect(() => {
     const script = document.createElement('script')
@@ -63,7 +64,7 @@ const Produto = () => {
 
   const handleAdicionarAoCarrinho = async () => {
     try {
-      await adicionarAoCarrinho(id, produto)
+      await adicionarAoCarrinho(id, { ...produto, quantidade }) // Passar quantidade
       toast.success('Produto adicionado ao carrinho', {
         position: 'top-center',
         autoClose: 2000,
@@ -78,7 +79,16 @@ const Produto = () => {
   }
 
   const handleComprarAgora = async () => {
+    if (!id) {
+      console.error('Produto ID não definido.')
+      toast.error('Produto ID não encontrado.', {
+        position: 'top-center',
+        autoClose: 2000,
+      })
+      return
+    }
     console.log("Botão 'Comprar Agora' clicado")
+
     try {
       if (!window.Stripe) {
         console.error('Stripe não foi carregado corretamente')
@@ -89,7 +99,7 @@ const Produto = () => {
         return
       }
 
-      console.log('Iniciando a criação da sessão de checkout...')
+      // Inicia a requisição para criar uma sessão de checkout
       const response = await fetch('/api/criarCheckoutSession', {
         method: 'POST',
         headers: {
@@ -97,21 +107,21 @@ const Produto = () => {
         },
         body: JSON.stringify({
           priceID: produto.priceID,
-          Quantidade: 1,
-          produtoId: id, // Verificando se 'id' é passado corretamente
+          quantidade, // Passar a quantidade selecionada
+          produtoId: id,
+          nome: produto.Nome,
           descricao: produto.Descrição,
           imagem: produto.Imagem,
-          nome: produto.Nome,
           preco: produto.Preco,
         }),
       })
+      console.log('Resposta da API:', response)
 
       if (!response.ok) {
         throw new Error(`Erro de HTTP! status: ${response.status}`)
       }
 
       const data = await response.json()
-      console.log('Dados da sessão de checkout:', data)
 
       if (data.sessionId) {
         const stripe = window.Stripe(process.env.NEXT_PUBLIC_STRIPE)
@@ -128,7 +138,7 @@ const Produto = () => {
         }
       }
     } catch (error) {
-      console.error('Erro ao chamar a função:', error)
+      console.error('Erro ao processar a compra:', error)
       toast.error('Erro ao processar a compra', {
         position: 'top-center',
         autoClose: 2000,
@@ -145,14 +155,28 @@ const Produto = () => {
         style={{ maxWidth: '300px' }}
       />
       <p>Preço: R${produto.Preço}</p>
-      <p>Quantidade: {produto.Quantidade}</p>
+      <p>Quantidade em estoque: {produto.Quantidade}</p>
       <p>
         Descrição:{' '}
         {produto.Descrição ? produto.Descrição : 'Nenhuma descrição disponível'}
       </p>
 
-      <button onClick={handleAdicionarAoCarrinho}>Adicionar ao Carrinho</button>
-      <button onClick={handleComprarAgora}>Comprar Agora</button>
+      <label htmlFor="quantidade">Quantidade:</label>
+      <input
+        type="number"
+        id="quantidade"
+        value={quantidade}
+        min="1"
+        max={produto.Quantidade} // Limitar ao máximo disponível em estoque
+        onChange={e => setQuantidade(e.target.value)} // Atualizar quantidade
+      />
+
+      <button type="button" onClick={handleAdicionarAoCarrinho}>
+        Adicionar ao Carrinho
+      </button>
+      <button type="submit" onClick={handleComprarAgora}>
+        Comprar Agora
+      </button>
 
       <ToastContainer />
     </div>
