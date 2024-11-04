@@ -5,6 +5,7 @@ import style from './adcCliente.module.css'
 import { useRouter } from 'next/router'
 import { collection, setDoc, doc } from 'firebase/firestore'
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+import { Timestamp } from 'firebase/firestore' // Adicione esta importação
 
 const usersCollectionRef = collection(db, 'Usuario')
 
@@ -94,6 +95,10 @@ const AdcCliente = () => {
       )
       const user = userCredential.user
 
+      const dataNascimentoTimestamp = dataNascimento
+      ? Timestamp.fromDate(new Date(dataNascimento))
+      : null
+
       await setDoc(doc(db, 'Usuario', user.uid), {
         Email: user.email,
         uid: user.uid,
@@ -101,7 +106,7 @@ const AdcCliente = () => {
         Endereco: endereco,
         CPF: cpf,
         Telefone: telefone,
-        DataNascimento: dataNascimento,
+        DataNascimento: dataNascimentoTimestamp,
       })
 
       setErrorMessage('')
