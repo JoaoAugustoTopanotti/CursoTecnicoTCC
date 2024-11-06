@@ -88,7 +88,6 @@ function VendaConsumidor() {
       )
       return
     }
-
     try {
       // Adiciona a venda na coleção "Vendas"
       await addDoc(collection(db, 'Vendas'), {
@@ -136,7 +135,7 @@ function VendaConsumidor() {
           <Autocomplete
             id="user"
             options={usuarios}
-            getOptionLabel={option => option.login || option.email} // Exibe login do usuário ou email se não houver login
+            getOptionLabel={option => option.Nome || option.Email} // Exibe login do usuário ou email se não houver login
             onChange={(event, newValue) =>
               setUsuarioID(newValue ? newValue.id : '')
             }

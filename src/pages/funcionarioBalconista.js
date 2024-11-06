@@ -22,7 +22,7 @@ function FuncionarioBalconista() {
           <button onClick={() => router.push('/vendaConsumidor')}>
             Venda ao Consumidor
           </button>
-          <button onClick={() => router.push('/adicionarCliente')}>
+          <button onClick={() => router.push('/adcCliente')}>
             Adicionar Cliente
           </button>
         </div>

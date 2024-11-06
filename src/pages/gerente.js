@@ -55,10 +55,10 @@ function Gerente() {
           <button onClick={() => router.push('/visualizarProduto')}>
             Visualizar Produtos
           </button>
-          <button onClick={() => router.push('/adicionarVendedor')}>
+          <button onClick={() => router.push('/adcVendedor')}>
             Adicionar Vendedor
           </button>
-          <button onClick={() => router.push('/visualizarVendedores')}>
+          <button onClick={() => router.push('/visualizarVendedor')}>
             Visualizar Vendedores
           </button>
           <button onClick={() => router.push('/adcPet')}>

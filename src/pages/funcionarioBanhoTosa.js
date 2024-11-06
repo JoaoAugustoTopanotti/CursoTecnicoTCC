@@ -42,7 +42,7 @@ function FuncionarioBanhoTosa() {
         </div>
         <div className={styles.gerenteButtons}>
           <button onClick={() => router.push('/adcPet')}>Adicionar Pet</button>
-          <button onClick={() => router.push('/visualizarAgenda')}>
+          <button onClick={() => router.push('/agendarBanhoeTosa')}>
             Agenda Banho e Tosa
           </button>
         </div>
