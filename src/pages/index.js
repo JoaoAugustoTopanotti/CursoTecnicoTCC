@@ -123,9 +123,8 @@ function Home() {
     <>
       <header className={styles.header}>
         <div className={styles.logo}>
-          <img src="https://www.florence.edu.br/wp-content/uploads/2022/08/Imagem-Materia_Dia-do-Cachorro-600x400.png" />
+          <img src="/logo.png" alt="Logo" />
         </div>
-        <h2 className={styles.title}>Bem-vindo à Agroshop!</h2>
         <div className={styles.notifications}>
           {petNotifications.map((notification, index) => (
             <div
@@ -138,25 +137,11 @@ function Home() {
           ))}
         </div>
         <nav className={styles.nav}>
-          <ul className={styles.navList}>
-            <li className={styles.navItem}>
-              <a href="/">Home</a>
-            </li>
-            <li className={styles.navItem}>
-              <button
-                className={styles.cartButton}
-                onClick={handleSchedulingClick}
-              >
-                Agendamento
-              </button>
-            </li>
-            <li className={styles.navItem}>
-              <button className={styles.cartButton} onClick={handleCartClick}>
-                Carrinho
-              </button>
-            </li>
-          </ul>
+          <ul className={styles.navList}> 
           <div className={styles.searchBar}>
+            <div className={styles.imgLupa}>
+              <img src="/lupa.png" alt="Logo"/>
+            </div>
             <input
               type="text"
               placeholder="Buscar produtos..."
@@ -164,6 +149,20 @@ function Home() {
               onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
+            <li className={styles.navItem}>
+              <button
+                className={styles.cartButton}
+                onClick={handleSchedulingClick}
+              >
+                <img src="/agenda.png" alt="Logo"/>
+              </button>
+            </li>
+            <li className={styles.navItem}>
+              <button onClick={handleCartClick}>
+                <img src="/carrinho.png" alt="Logo"/>
+              </button>
+            </li>
+          </ul>
           {!currentUser && (
             <a href="/Autenticacao/login">
               <button className={styles.button}>Fazer Login</button>

@@ -1,9 +1,10 @@
 .header {
   padding: 20px;
   background-color: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   display: flex;
+  height: 60px;
+  margin-top: auto;
+  margin: 0;
 }
 
 .title {
@@ -14,14 +15,13 @@
   margin-bottom: 20px;
 }
 .logo {
-  width: 70px;
-  height: 70px;
+  margin-top: -18px;
+  margin-left: 20px;
 }
 
 .logo img {
-  width: 70px;
-  height: 70px;
-  border-radius: 2%;
+  width: 100px;
+  height: 100px;
 }
 .notifications {
   display: flex;
@@ -70,10 +70,10 @@
   gap: 30px;
 }
 
-.navItem {
-  font-size: 1rem;
-  color: #007bff;
-  font-weight: 500;
+.navItem{
+  width: 28px;
+  height: 28px;
+  margin-left: 55px;
 }
 
 .navItem a {
@@ -101,14 +101,22 @@
 
 .searchBar input {
   padding: 8px 12px;
-  border-radius: 20px;
+  border-radius: 5px;
   border: 1px solid #ddd;
   transition: border-color 0.3s ease;
+  width: 350px;
+  margin-left: 280px;
+  height: 25px;
 }
 
 .searchBar input:focus {
   border-color: #007bff;
   outline: none;
+}
+
+.imgLupa img{
+  width: 25px;
+  margin-left: 1100%;
 }
 
 .button {
@@ -120,6 +128,7 @@
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.3s ease;
+  margin-left: 160px;
 }
 
 .button:hover {
@@ -188,3 +197,26 @@
   font-weight: bold;
   color: #007bff;
 }
+
+.cartButton,
+.navItem button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 5px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cartButton img,
+.navItem button img {
+  width: 30px;
+  height: 30px;
+}
+
+.cartButton:hover,
+.navItem button:hover {
+  transform: scale(1.1); /* Aumenta um pouco ao passar o mouse */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); /* Sombra suave */
+}
+ 
