@@ -110,7 +110,7 @@ const Produto = () => {
           quantidade, // Passar a quantidade selecionada
           produtoId: id,
           nome: produto.Nome,
-          descricao: produto.Descrição,
+          descricao: produto.Descricao,
           imagem: produto.Imagem,
           preco: produto.Preco,
         }),

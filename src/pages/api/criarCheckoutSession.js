@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             : 0
 
         // Validação dos campos nome e descrição
-        if (!item.Nome || !item.Descrição) {
+        if (!item.Nome || !item.Descricao) {
           throw new Error('Nome ou descrição do produto ausentes.')
         }
 
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
             currency: 'brl',
             product_data: {
               name: item.Nome,
-              description: item.Descrição,
+              description: item.Descricao,
             },
             unit_amount, // Preço em centavos
           },

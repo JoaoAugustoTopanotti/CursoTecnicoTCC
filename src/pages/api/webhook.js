@@ -88,7 +88,7 @@ export default async function webhookHandler(req, res) {
               itensVendidos.push({
                 produtoId,
                 Nome: produtoData.Nome,
-                Descrição: produtoData.Descrição,
+                Descrição: produtoData.Descricao,
                 Imagem: produtoData.Imagem,
                 Quantidade: quantidadeComprada,
                 Preço: lineItems.data[i].amount_total / 100, // Preço total por item
