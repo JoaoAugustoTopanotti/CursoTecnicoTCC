@@ -18,7 +18,8 @@ const Cart = () => {
   // Função para buscar os itens do carrinho
   useEffect(() => {
     const fetchCartItems = async () => {
-      if (user) {
+      if (user && user.uid) {
+        // Certifique-se de que o user.uid está definido
         try {
           const cartRef = doc(db, 'Carrinho', user.uid)
           const cartSnap = await getDoc(cartRef)
@@ -45,6 +46,8 @@ const Cart = () => {
         } catch (error) {
           console.error('Erro ao buscar itens do carrinho:', error)
         }
+      } else {
+        console.warn('Usuário não está autenticado ou UID não está disponível.')
       }
     }
 

@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../../components/firebaseConfig'
 import { adicionarAoCarrinho } from '../../components/carrinhoUtils'
+import { useAuth } from '../../components/authContext'
 import { ToastContainer, toast } from 'react-toastify'
+import Modal from 'react-modal'
 import 'react-toastify/dist/ReactToastify.css'
 
 const Produto = () => {
@@ -12,6 +14,9 @@ const Produto = () => {
   const [produto, setProduto] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [quantidade, setQuantidade] = useState(1) // Adicionar estado para quantidade
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [enderecoUsuario, setEnderecoUsuario] = useState('')
+  const { currentUser, logout } = useAuth()
 
   useEffect(() => {
     const script = document.createElement('script')
@@ -54,6 +59,23 @@ const Produto = () => {
     }
   }, [id])
 
+  useEffect(() => {
+    const buscarEnderecoUsuario = async () => {
+      if (currentUser?.uid) {
+        // Verifica se o currentUser e uid existem
+        const usuarioId = currentUser.uid // Usa o uid como ID do usuário
+        const usuarioRef = doc(db, 'Usuario', usuarioId)
+        const usuarioSnap = await getDoc(usuarioRef)
+        if (usuarioSnap.exists()) {
+          setEnderecoUsuario(usuarioSnap.data().Endereco)
+        } else {
+          console.error('Endereço do usuário não encontrado')
+        }
+      }
+    }
+    buscarEnderecoUsuario()
+  }, [currentUser])
+
   if (carregando) {
     return <p>Carregando produto...</p>
   }
@@ -77,64 +99,61 @@ const Produto = () => {
       })
     }
   }
+  const atualizarPreco = e => {
+    const precoBase = parseFloat(produto.Preco) * quantidade
+    const precoComEntrega = precoBase + 10
 
-  const handleComprarAgora = async () => {
-    if (!id) {
-      console.error('Produto ID não definido.')
-      toast.error('Produto ID não encontrado.', {
-        position: 'top-center',
-        autoClose: 2000,
-      })
-      return
+    if (e.target.value === 'entrega') {
+      setProduto(prevProduto => ({
+        ...prevProduto,
+        PrecoComEntrega: precoComEntrega,
+      }))
+    } else {
+      setProduto(prevProduto => ({
+        ...prevProduto,
+        PrecoComEntrega: precoBase, // Reseta para preço base
+      }))
     }
-    console.log("Botão 'Comprar Agora' clicado")
+  }
+
+  const handleComprarAgora = () => {
+    // Atualiza o preço com base no estado atual
+    const precoBase = parseFloat(produto.Preco) * quantidade
+    setProduto(prevProduto => ({
+      ...prevProduto,
+      PrecoComEntrega: precoBase, // Define o preço inicial sem entrega
+    }))
+    setIsModalOpen(true) // Abre o modal de confirmação de endereço
+  }
+
+  const confirmarEndereco = async () => {
+    const precoFinal = produto.PrecoComEntrega || produto.Preco * quantidade
+    console.log('Preço final calculado no frontend:', precoFinal)
 
     try {
-      if (!window.Stripe) {
-        console.error('Stripe não foi carregado corretamente')
-        toast.error('Erro ao carregar o Stripe', {
-          position: 'top-center',
-          autoClose: 2000,
-        })
-        return
-      }
-
-      // Inicia a requisição para criar uma sessão de checkout
       const response = await fetch('/api/criarCheckoutSession', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           priceID: produto.priceID,
-          quantidade, // Passar a quantidade selecionada
+          quantidade,
           produtoId: id,
           nome: produto.Nome,
           descricao: produto.Descricao,
           imagem: produto.Imagem,
-          preco: produto.Preco,
+          preco: precoFinal, // Certifique-se que o preço está correto
+          endereco: enderecoUsuario,
         }),
       })
-      console.log('Resposta da API:', response)
-
-      if (!response.ok) {
-        throw new Error(`Erro de HTTP! status: ${response.status}`)
-      }
 
       const data = await response.json()
-
       if (data.sessionId) {
         const stripe = window.Stripe(process.env.NEXT_PUBLIC_STRIPE)
         const { error } = await stripe.redirectToCheckout({
           sessionId: data.sessionId,
         })
-
         if (error) {
           console.error('Erro ao redirecionar para o checkout:', error)
-          toast.error('Erro ao processar a compra', {
-            position: 'top-center',
-            autoClose: 2000,
-          })
         }
       }
     } catch (error) {
@@ -144,6 +163,11 @@ const Produto = () => {
         autoClose: 2000,
       })
     }
+    setIsModalOpen(false)
+  }
+
+  const retornar = () => {
+    setIsModalOpen(false)
   }
 
   return (
@@ -154,11 +178,11 @@ const Produto = () => {
         alt={produto.Nome}
         style={{ maxWidth: '300px' }}
       />
-      <p>Preço: R${produto.Preço}</p>
+      <p>Preço: R${produto.Preco}</p>
       <p>Quantidade em estoque: {produto.Quantidade}</p>
       <p>
         Descrição:{' '}
-        {produto.Descrição ? produto.Descrição : 'Nenhuma descrição disponível'}
+        {produto.Descricao ? produto.Descricao : 'Nenhuma descrição disponível'}
       </p>
 
       <label htmlFor="quantidade">Quantidade:</label>
@@ -167,16 +191,51 @@ const Produto = () => {
         id="quantidade"
         value={quantidade}
         min="1"
-        max={produto.Quantidade} // Limitar ao máximo disponível em estoque
-        onChange={e => setQuantidade(e.target.value)} // Atualizar quantidade
+        max={produto.Quantidade}
+        onChange={e => setQuantidade(e.target.value)}
       />
 
       <button type="button" onClick={handleAdicionarAoCarrinho}>
         Adicionar ao Carrinho
       </button>
-      <button type="submit" onClick={handleComprarAgora}>
+      <button type="button" onClick={handleComprarAgora}>
         Comprar Agora
       </button>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Confirmar Endereço"
+        ariaHideApp={false}
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      >
+        <h2>Confirmar Endereço</h2>
+        <p>Endereço: {enderecoUsuario || 'Endereço não encontrado'}</p>
+
+        <label htmlFor="selecioneServico">Selecione o Serviço:</label>
+        <select id="selecioneServico" onChange={e => atualizarPreco(e)}>
+          <option value="buscar_na_loja">Buscar na Loja</option>
+          <option value="entrega">Entrega (+ R$ 10,00)</option>
+        </select>
+
+        <p>
+          Preço final:{' '}
+          {produto.PrecoComEntrega
+            ? `R$ ${produto.PrecoComEntrega.toFixed(2)}`
+            : `R$ ${produto.Preco.toFixed(2)}`}
+        </p>
+
+        <button onClick={confirmarEndereco}>Confirmar Endereço</button>
+        <button onClick={retornar}>Retornar</button>
+      </Modal>
 
       <ToastContainer />
     </div>

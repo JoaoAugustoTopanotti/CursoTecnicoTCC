@@ -5,13 +5,21 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { cartItems, produtoId, nome, descricao, preco, quantidade } =
-      req.body
+    const {
+      cartItems,
+      produtoId,
+      nome,
+      descricao,
+      preco,
+      quantidade,
+      endereco,
+    } = req.body
 
     let lineItems
     let produtoIds // Criação da variável para armazenar os IDs dos produtos
 
     console.log('Recebendo requisição para criar sessão de checkout:', req.body)
+    console.log('Preço recebido no backend:', preco)
 
     // Validação dos parâmetros recebidos
     if (cartItems && cartItems.length > 0) {
@@ -38,7 +46,7 @@ export default async function handler(req, res) {
             },
             unit_amount, // Preço em centavos
           },
-          quantity: item.quantity || 1, // Quantidade variável, padrão para 1
+          quantity: 1, // Quantidade variável, padrão para 1
         }
       })
 
@@ -73,7 +81,7 @@ export default async function handler(req, res) {
             },
             unit_amount, // Preço em centavos
           },
-          quantity: quantidade || 1, // Quantidade do produto, padrão para 1
+          quantity: 1, // Quantidade do produto, padrão para 1
         },
       ]
 
@@ -100,6 +108,7 @@ export default async function handler(req, res) {
         cancel_url: `${req.headers.origin}/cancelado`,
         metadata: {
           produtoIds: JSON.stringify(produtoIds), // Usando a variável produtoIds
+          endereco: endereco,
         },
       })
 

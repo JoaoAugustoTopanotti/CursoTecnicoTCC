@@ -56,6 +56,7 @@ export default async function webhookHandler(req, res) {
             session.id
           )
           const produtoIds = JSON.parse(session.metadata.produtoIds)
+          const endereco = session.metadata.endereco
           console.log('IDs dos produtos comprados:', produtoIds)
 
           // Cria uma lista de todos os itens da venda
@@ -100,6 +101,7 @@ export default async function webhookHandler(req, res) {
           const vendaRef = db.collection('Vendas')
           const vendaData = {
             Itens: itensVendidos,
+            endereco: endereco,
             Total: session.amount_total / 100,
             data: admin.firestore.Timestamp.now(),
             Cliente: session.customer_email || 'Cliente não identificado',
