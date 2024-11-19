@@ -178,7 +178,7 @@ const Cart = () => {
       return {
         produtoId: item.produtoId,
         Nome: item.Nome,
-        Descrição: item.Descrição,
+        Descricao: item.Descricao,
         quantity,
         price: item.Preco,
       }
