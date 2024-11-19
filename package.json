@@ -18,7 +18,7 @@
     "firebase-admin": "^12.5.0",
     "micro": "^10.0.1",
     "minimatch": "^10.0.1",
-    "next": "^14.2.14",
+    "next": "^14.2.17",
     "react": "^18.3.1",
     "react-barcode-reader": "^0.0.2",
     "react-datepicker": "^7.3.0",

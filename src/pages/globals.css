@@ -1,0 +1,17 @@
+/* src/styles/globals.css */
+
+/* Remove margens e preenchimentos padrão */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+  
+  /* Ajustes adicionais para a página */
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* Evita barra de rolagem horizontal */
+  }
+  

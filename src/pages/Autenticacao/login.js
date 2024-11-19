@@ -22,7 +22,7 @@ function Login() {
       )
       const user = userCredential.user
 
-      if (email === 'joaoactopa@gmail.com' && password === '123456') {
+      if (email === 'gabriel@gmail.com' && password === '123456') {
         router.push('/gerente')
         console.log('Usuário autenticado (Gerente):', user.uid)
       } else {
