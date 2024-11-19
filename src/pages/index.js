@@ -121,63 +121,73 @@ function Home() {
 
   return (
     <>
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <img src="/logo.png" alt="Logo" />
-        </div>
-        <div className={styles.notifications}>
-          {petNotifications.map((notification, index) => (
-            <div
-              key={index}
-              className={`${styles.notification} ${styles[notification.color]}`}
-            >
-              Faltam apenas {notification.daysUntilVaccination} dias para{' '}
-              {notification.petName} se vacinar!
-            </div>
-          ))}
-        </div>
-        <nav className={styles.nav}>
-          <ul className={styles.navList}> 
-          <div className={styles.searchBar}>
-            <div className={styles.imgLupa}>
-              <img src="/lupa.png" alt="Logo"/>
-            </div>
-            <input
-              type="text"
-              placeholder="Buscar produtos..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
+    <div className={styles.pagina}>
+      <div className='Menu'>
+        <header className={styles.menu}>
+          <div className={styles.logo}>
+            <img src="/logo.png" alt="Logo" />
           </div>
-            <li className={styles.navItem}>
-              <button
-                className={styles.cartButton}
-                onClick={handleSchedulingClick}
+          <div className={styles.notifications}>
+            {petNotifications.map((notification, index) => (
+              <div
+                key={index}
+                className={`${styles.notification} ${styles[notification.color]}`}
               >
-                <img src="/agenda.png" alt="Logo"/>
+                Faltam apenas {notification.daysUntilVaccination} dias para{' '}
+                {notification.petName} se vacinar!
+              </div>
+            ))}
+          </div>
+          <nav className={styles.nav}>
+            <ul className={styles.navList}> 
+            <div className={styles.searchBar}>
+              <div className={styles.imgLupa}>
+                <img src="/lupa.png" alt="Logo"/>
+              </div>
+              <input
+                type="text"
+                placeholder="Buscar produtos..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className={'styles.Agenda'}>
+              <li className={styles.navItem}>
+                <button
+                  className={styles.cartButton}
+                  onClick={handleSchedulingClick}
+                >
+                  <img src="/agenda.png" alt="Logo"/>
+                </button>
+              </li>
+            </div>
+              <li className={styles.navItem}>
+                <button onClick={handleCartClick}>
+                  <img src="/carrinho.png" alt="Logo"/>
+                </button>
+              </li>
+            </ul>
+            {!currentUser && (
+              <a href="/Autenticacao/login">
+                <button className={styles.button}>Fazer Login</button>
+              </a>
+            )}
+            {currentUser && (
+              <button className={styles.button} onClick={handleLogout}>
+                Logout
               </button>
-            </li>
-            <li className={styles.navItem}>
-              <button onClick={handleCartClick}>
-                <img src="/carrinho.png" alt="Logo"/>
-              </button>
-            </li>
-          </ul>
-          {!currentUser && (
-            <a href="/Autenticacao/login">
-              <button className={styles.button}>Fazer Login</button>
-            </a>
-          )}
-          {currentUser && (
-            <button className={styles.button} onClick={handleLogout}>
-              Logout
-            </button>
-          )}
-        </nav>
-      </header>
+            )}
+          </nav>
+        </header>
+      </div>
+      <div className={styles.banner}>
+        <img src="/banner.png" alt="Logo" width={1350}/>
+      </div>
+      <div className={styles.title}>
+        <h3>Produtos</h3>
+      </div>
       <div className={styles.headerRight}>
         <section className={styles.products}>
-          <h3>Produtos Disponíveis</h3>
           <div className={styles.productsList}>
             {filteredProducts.map(product => (
               <div
@@ -193,13 +203,13 @@ function Home() {
                 />
                 <h4>{product.nome}</h4>
                 <p>{product.descricao}</p>
-                <p>Quantidade: {product.quantidade}</p>
-                <p>Preço: R$ {product.preco}</p>
+                <p>R$ {product.preco}</p>
               </div>
             ))}
           </div>
         </section>
       </div>
+    </div>
     </>
   )
 }
