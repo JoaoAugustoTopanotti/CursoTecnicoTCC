@@ -82,6 +82,7 @@ export default async function handler(req, res) {
             unit_amount, // Preço em centavos
           },
           quantity: 1, // Quantidade do produto, padrão para 1
+          //quantity: quantidade || 1, // Quantidade do produto, padrão para 1
         },
       ]
 
