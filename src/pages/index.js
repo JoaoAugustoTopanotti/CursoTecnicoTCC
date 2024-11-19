@@ -203,8 +203,7 @@ function Home() {
                 />
                 <h4>{product.nome}</h4>
                 <p>{product.descricao}</p>
-                <p>Quantidade: {product.quantidade}</p>
-                <p>Preço: R$ {product.preco}</p>
+                <p>R$ {product.preco}</p>
               </div>
             ))}
           </div>
