@@ -6,6 +6,7 @@ import { adicionarAoCarrinho } from '../../components/carrinhoUtils'
 import { useAuth } from '../../components/authContext'
 import { ToastContainer, toast } from 'react-toastify'
 import Modal from 'react-modal'
+import styles from '../modalStyles.module.css'
 import 'react-toastify/dist/ReactToastify.css'
 
 const Produto = () => {
@@ -207,36 +208,64 @@ const Produto = () => {
         contentLabel="Confirmar Endereço"
         ariaHideApp={false}
         style={{
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.6)', // Fundo escuro transparente
+            display: 'flex', // Alinha centralmente
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
           content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
+            width: '400px',
+            maxWidth: '90%',
+            maxHeight: '50%',
+            overflowY: 'auto', // Para permitir rolagem caso necessário
+            margin: '0 auto',
+            borderRadius: '15px',
+            padding: '25px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+            border: 'none',
+            backgroundColor: '#fff',
+            animation: 'fadeIn 0.3s ease-in-out',
           },
         }}
       >
-        <h2>Confirmar Endereço</h2>
-        <p>Endereço: {enderecoUsuario || 'Endereço não encontrado'}</p>
+        <h2 className={styles.modalTitle}>Confirmar Endereço</h2>
+        <p className={styles.modalText}>
+          <strong>Endereço:</strong>{' '}
+          {enderecoUsuario || 'Endereço não encontrado'}
+        </p>
 
-        <label htmlFor="selecioneServico">Selecione o Serviço:</label>
-        <select id="selecioneServico" onChange={e => atualizarPreco(e)}>
+        <label htmlFor="selecioneServico" className={styles.modalLabel}>
+          Selecione o Serviço:
+        </label>
+        <select
+          id="selecioneServico"
+          onChange={e => atualizarPreco(e)}
+          className={styles.modalSelect}
+        >
           <option value="buscar_na_loja">Buscar na Loja</option>
           <option value="entrega">Entrega (+ R$ 10,00)</option>
         </select>
 
-        <p>
-          Preço final:{' '}
+        <p className={styles.modalPrice}>
+          <strong>Preço final:</strong>{' '}
           {produto.PrecoComEntrega
             ? `R$ ${produto.PrecoComEntrega.toFixed(2)}`
             : `R$ ${produto.Preco.toFixed(2)}`}
         </p>
 
-        <button onClick={confirmarEndereco}>Confirmar Endereço</button>
-        <button onClick={retornar}>Retornar</button>
+        <div className={styles.modalActions}>
+          <button
+            className={styles.modalBtnConfirm}
+            onClick={confirmarEndereco}
+          >
+            Confirmar Endereço
+          </button>
+          <button className={styles.modalBtnCancel} onClick={retornar}>
+            Retornar
+          </button>
+        </div>
       </Modal>
-
       <ToastContainer />
     </div>
   )

@@ -1,0 +1,93 @@
+/* Fundo do título */
+.modalTitle {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+}
+
+/* Texto principal */
+.modalText {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* Labels */
+.modalLabel {
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: block;
+  color: #333;
+  text-align: left;
+}
+
+/* Dropdown */
+.modalSelect {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+}
+
+/* Preço */
+.modalPrice {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Ações */
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Botões */
+.modal-btn {
+  flex: 1;
+  padding: 12px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modalBtnConfirm {
+  background-color: #28a745;
+  color: white;
+}
+
+.modal-btn.confirm:hover {
+  background-color: #218838;
+}
+
+.modalBtnCancel {
+  background-color: #dc3545;
+  color: white;
+}
+
+.modal-btn.cancel:hover {
+  background-color: #c82333;
+}
+
+/* Animação */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
