@@ -5,6 +5,7 @@ import { db } from '../../components/firebaseConfig'
 import { adicionarAoCarrinho } from '../../components/carrinhoUtils'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import styles from './produtos.module.css'
 
 const Produto = () => {
   const router = useRouter()
@@ -147,13 +148,17 @@ const Produto = () => {
   }
 
   return (
-    <div>
-      <h1>{produto.Nome}</h1>
-      <img
-        src={produto.Imagem}
-        alt={produto.Nome}
-        style={{ maxWidth: '300px' }}
-      />
+    <div className={styles.produto}>
+      <div className={styles.titleProduto}>
+        <h1>{produto.Nome}</h1>
+      </div>
+      <div className={styles.ProdutoImg}>
+        <img
+          src={produto.Imagem}
+          alt={produto.Nome}
+          style={{ maxWidth: '400px' }}
+        />
+      </div>
       <p>Preço: R${produto.Preço}</p>
       <p>Quantidade em estoque: {produto.Quantidade}</p>
       <p>
