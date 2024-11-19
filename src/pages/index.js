@@ -13,7 +13,7 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const router = useRouter()
 
-  const uiui = 'foi?'
+  const uiui = 'foi.'
 
   useEffect(() => {
     const fetchPetData = async () => {
