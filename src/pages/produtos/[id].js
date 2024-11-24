@@ -295,50 +295,10 @@ const Produto = () => {
 
   return (
     <div>
-      <h1>{produto.Nome}</h1>
-      <img
-        src={produto.Imagem}
-        alt={produto.Nome}
-        style={{ maxWidth: '300px' }}
-      />
-      <p>Preço: R${produto.Preco}</p>
-      <p>Quantidade em estoque: {produto.Quantidade}</p>
-      <p>
-        Descrição:{' '}
-        {produto.Descricao ? produto.Descricao : 'Nenhuma descrição disponível'}
-      </p>
-
-      <label htmlFor="quantity">Quantidade:</label>
-      <input
-        type="number"
-        id="quantity"
-        value={quantity}
-        min="1"
-        max={produto.Quantidade}
-        onChange={e => setquantity(e.target.value)}
-      />
-
-      <button type="button" onClick={handleAdicionarAoCarrinho}>
-        Adicionar ao Carrinho
-      </button>
-      <button type="button" onClick={handleComprarAgora}>
-        Comprar Agora
-      </button>
       <div className="Menu">
         <header className={styles.menu}>
           <div className={styles.logo}>
             <img src="/logo.png" alt="Logo" />
-          </div>
-          <div className={styles.notifications}>
-            {petNotifications.map((notification, index) => (
-              <div
-                key={index}
-                className={`${styles.notification} ${styles[notification.color]}`}
-              >
-                Faltam apenas {notification.daysUntilVaccination} dias para{' '}
-                {notification.petName} se vacinar!
-              </div>
-            ))}
           </div>
           <nav className={styles.nav}>
             <ul className={styles.navList}>
@@ -412,10 +372,10 @@ const Produto = () => {
           <input
             type="number"
             id="quantidade"
-            value={quantidade}
+            value={quantity}
             min="1"
             max={produto.Quantidade}
-            onChange={e => setQuantidade(e.target.value)}
+            onChange={e => setquantity(e.target.value)}
           />
           <div className={styles.botao}>
             <button type="button" onClick={handleAdicionarAoCarrinho}>
