@@ -1,0 +1,159 @@
+/* Estilos principais */
+.container {
+    width: 90%;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Campo de pesquisa */
+  .searchInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  
+  .searchInput:focus {
+    border-color: #007bff;
+  }
+  
+  /* Lista de usuários */
+  .userList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .userItem {
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .userItem:hover {
+    background-color: #f1f1f1;
+    transform: scale(1.01);
+  }
+  
+  .active {
+    background-color: #e7f3ff;
+    border-color: #007bff;
+  }
+  
+  /* Detalhes do usuário */
+  .userDetails {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .userDetails p {
+    margin: 5px 0;
+  }
+  
+  /* Botões */
+  .deleteButton {
+    padding: 8px 12px;
+    margin-right: 10px;
+    background-color: #dc3545;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .deleteButton:hover {
+    background-color: #c82333;
+  }
+  
+  .editButton {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .editButton:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Formulário de edição */
+  .editForm {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background-color: #f8f9fa;
+  }
+  
+  .editForm h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .editForm label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .editForm input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  
+  .editForm input:focus {
+    border-color: #007bff;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 600px) {
+    .container {
+      padding: 15px;
+    }
+  
+    .userItem {
+      font-size: 14px;
+    }
+  
+    .editButton,
+    .deleteButton {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+  
+    .editForm {
+      padding: 15px;
+    }
+  
+    .editForm h3 {
+      font-size: 16px;
+    }
+  }
+  

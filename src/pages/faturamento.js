@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { db } from '../components/firebaseConfig'
 import { collection, getDocs, query, where } from 'firebase/firestore'
+import { Bar } from 'react-chartjs-2'
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js'
 import styles from './Faturamento.module.css' // Crie e ajuste o arquivo CSS
 
-// Componente Faturamento
+// Registrar os componentes do Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+)
+
 const Faturamento = () => {
   const [receitas, setReceitas] = useState(0)
   const [despesas, setDespesas] = useState(0)
@@ -65,14 +76,51 @@ const Faturamento = () => {
     fetchData()
   }, [])
 
+  // Dados para o gráfico de barras
+  const data = {
+    labels: ['Receitas', 'Despesas'],
+    datasets: [
+      {
+        label: 'Valores',
+        data: [receitas, despesas],
+        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+        borderWidth: 1,
+      },
+    ],
+  }
+
+  // Opções para o gráfico
+  const options = {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Comparação de Receitas e Despesas',
+      },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            return `R$ ${tooltipItem.raw.toFixed(2)}`
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  }
+
   return (
     <div className={styles.faturamento}>
-      <h1>Faturamento</h1>
+      <div className={styles.titulo}>Faturamento</div>
       {loading ? (
         <p>Carregando...</p>
       ) : (
         <>
-          <h2>Receitas</h2>
+          <div className={styles.Receita}>Receitas</div>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -86,7 +134,7 @@ const Faturamento = () => {
             </tbody>
           </table>
 
-          <h2>Despesas</h2>
+          <div className={styles.Despesas}>Despesas</div>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -99,6 +147,11 @@ const Faturamento = () => {
               </tr>
             </tbody>
           </table>
+
+          {/* Gráfico de barras */}
+          <div className={styles.grafico}>
+            <Bar data={data} options={options} />
+          </div>
         </>
       )}
     </div>

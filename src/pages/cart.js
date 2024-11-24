@@ -1,12 +1,13 @@
-// Importações necessárias
 import React, { useEffect, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, updateDoc, arrayRemove } from 'firebase/firestore'
 import { db } from '../components/firebaseConfig'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-
-// Função para carregar o Stripe
+import styles from './Cart.module.css' // Importando o arquivo CSS
+import { collection, query, getDocs, where } from 'firebase/firestore'
+import { useAuth } from '../components/authContext'
+import { useRouter } from 'next/router'
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([])
@@ -14,47 +15,151 @@ const Cart = () => {
   const [totalPrice, setTotalPrice] = useState(0)
   const auth = getAuth()
   const user = auth.currentUser
+  const { currentUser, logout } = useAuth()
+  const [petNotifications, setPetNotifications] = useState([])
+  const [products, setProducts] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const router = useRouter()
 
-  // Função para buscar os itens do carrinho
+  useEffect(() => {
+    const fetchPetData = async () => {
+      if (currentUser) {
+        const q = query(
+          collection(db, 'Pets'),
+          where('UsuarioID', '==', currentUser.uid)
+        )
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+          const notifications = []
+
+          querySnapshot.forEach(doc => {
+            const petData = doc.data()
+            const nextVaccinationDate = petData.PróximaVacinação.toDate()
+            const today = new Date()
+            const timeDiff = nextVaccinationDate - today
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
+
+            let color = ''
+            if (daysDiff <= 10) {
+              color = 'red'
+            } else if (daysDiff > 10 && daysDiff <= 20) {
+              color = 'yellow'
+            } else {
+              color = 'green'
+            }
+
+            notifications.push({
+              petName: petData.Nome,
+              daysUntilVaccination: daysDiff,
+              color,
+            })
+          })
+
+          setPetNotifications(notifications)
+        }
+      }
+    }
+
+    const fetchProducts = async () => {
+      const q = query(collection(db, 'Produtos'))
+      const querySnapshot = await getDocs(q)
+
+      const productsList = []
+      querySnapshot.forEach(doc => {
+        const productData = doc.data()
+        productsList.push({
+          id: doc.id,
+          nome: productData.Nome,
+          descricao: productData.Descrição,
+          quantidade: productData.Quantidade,
+          imagem: productData.Imagem,
+          preco: productData.Preco,
+        })
+      })
+
+      setProducts(productsList)
+    }
+
+    fetchPetData()
+    fetchProducts()
+  }, [currentUser])
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      clearNotifications()
+      console.log('Usuário deslogado com sucesso.')
+      router.push('/')
+    } catch (error) {
+      console.error('Erro ao deslogar:', error)
+    }
+  }
+
+  const clearNotifications = () => {
+    setPetNotifications([])
+  }
+
+  const handleSchedulingClick = () => {
+    if (currentUser) {
+      router.push('/agendamento')
+    } else {
+      router.push('Autenticacao/login')
+    }
+  }
+  const handleCartClick = () => {
+    if (currentUser) {
+      router.push('/cart')
+    } else {
+      router.push('Autenticacao/login')
+    }
+  }
+
+  const handleProductClick = productId => {
+    if (currentUser) {
+      router.push(`/produtos/${productId}`)
+    } else {
+      router.push('Autenticacao/login')
+    }
+  }
+
+  const filteredProducts = products.filter(product =>
+    product.nome.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   useEffect(() => {
     const fetchCartItems = async () => {
       if (user && user.uid) {
-        // Certifique-se de que o user.uid está definido
         try {
           const cartRef = doc(db, 'Carrinho', user.uid)
           const cartSnap = await getDoc(cartRef)
 
           if (cartSnap.exists()) {
             const { Itens } = cartSnap.data()
-            console.log('Itens do carrinho:', Itens)
 
             if (Itens && Array.isArray(Itens)) {
               const initialQuantities = {}
               const validItems = Itens.filter(item => {
                 if (item.Nome && item.Preco) {
-                  initialQuantities[item.produtoId] = 1 // Inicia com 1
+                  initialQuantities[item.produtoId] = 1
                   return true
                 }
                 return false
               })
 
               setProductQuantities(initialQuantities)
-              console.log('Itens válidos do carrinho:', validItems)
               setCartItems(validItems)
             }
           }
         } catch (error) {
           console.error('Erro ao buscar itens do carrinho:', error)
         }
-      } else {
-        console.warn('Usuário não está autenticado ou UID não está disponível.')
       }
     }
 
     fetchCartItems()
   }, [user])
 
-  // Função para calcular o valor total do carrinho
   useEffect(() => {
     const calculateTotalPrice = () => {
       const total = cartItems.reduce((acc, item) => {
@@ -67,22 +172,13 @@ const Cart = () => {
     calculateTotalPrice()
   }, [cartItems, productQuantities])
 
-  // Função para ajustar a quantidade do item no carrinho
-  // Função para ajustar a quantidade do item no carrinho
-  const ajustarQuantidade = async (
-    produtoId,
-    novaQuantidade,
-    estoqueDisponivel
-  ) => {
+  const ajustarQuantidade = async (produtoId, novaQuantidade, estoqueDisponivel) => {
     if (novaQuantidade <= estoqueDisponivel && novaQuantidade > 0) {
       try {
-        // Atualize o estado local com a nova quantidade
         setProductQuantities(prevQuantities => ({
           ...prevQuantities,
           [produtoId]: novaQuantidade,
         }))
-
-        // Atualize a quantidade de forma local no array `cartItems`
         setCartItems(prevItems =>
           prevItems.map(item =>
             item.produtoId === produtoId
@@ -91,10 +187,7 @@ const Cart = () => {
           )
         )
 
-        // Referência ao documento do carrinho do usuário no Firestore
         const cartRef = doc(db, 'Carrinho', user.uid)
-
-        // Obtenha o documento atual do carrinho para modificar apenas o item específico
         const cartSnap = await getDoc(cartRef)
         if (cartSnap.exists()) {
           const cartData = cartSnap.data()
@@ -104,22 +197,16 @@ const Cart = () => {
               : item
           )
 
-          // Atualize o array `Itens` no Firestore com a nova quantidade
           await updateDoc(cartRef, { Itens: updatedItems })
-          console.log('Quantidade atualizada no banco de dados com sucesso!')
         }
       } catch (error) {
-        console.error(
-          'Erro ao atualizar a quantidade no banco de dados:',
-          error
-        )
+        console.error('Erro ao atualizar a quantidade no banco de dados:', error)
       }
     } else {
       alert('A quantidade selecionada excede o estoque disponível.')
     }
   }
 
-  // Função para remover um item do carrinho
   const removerDoCarrinho = async produtoId => {
     if (user) {
       try {
@@ -139,22 +226,18 @@ const Cart = () => {
     }
   }
 
-  // Função para carregar o Stripe
   const loadStripe = () => {
     return new Promise(resolve => {
       if (window.Stripe) {
-        console.log('Stripe já carregado:', window.Stripe)
-        resolve(window.Stripe(process.env.NEXT_PUBLIC_STRIPE)) // Substitua pela sua chave pública do Stripe
+        resolve(window.Stripe(process.env.NEXT_PUBLIC_STRIPE))
       } else {
         const script = document.createElement('script')
         script.src = 'https://js.stripe.com/v3/'
         script.async = true
         script.onload = () => {
-          console.log('Stripe carregado com sucesso:', window.Stripe)
-          resolve(window.Stripe(process.env.NEXT_PUBLIC_STRIPE)) // Substitua pela sua chave pública do Stripe
+          resolve(window.Stripe(process.env.NEXT_PUBLIC_STRIPE))
         }
         script.onerror = () => {
-          console.error('Falha ao carregar o Stripe')
           resolve(null)
         }
         document.body.appendChild(script)
@@ -162,7 +245,6 @@ const Cart = () => {
     })
   }
 
-  // Função para criar a sessão de checkout
   const criarCheckoutSession = async () => {
     const stripe = await loadStripe()
     if (!stripe) {
@@ -184,26 +266,22 @@ const Cart = () => {
       }
     })
 
-    console.log('Line items para o Stripe:', lineItems) // Verifique os itens
-
     try {
       const response = await fetch('/api/criarCheckoutSession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ cartItems: lineItems, productQuantities }), // Enviando os itens
+        body: JSON.stringify({ cartItems: lineItems, productQuantities }),
       })
 
       const data = await response.json()
-      console.log('Resposta da sessão de checkout:', data)
 
       if (data.sessionId) {
         const { error } = await stripe.redirectToCheckout({
           sessionId: data.sessionId,
         })
         if (error) {
-          console.error('Erro ao redirecionar para o checkout:', error)
           toast.error('Erro ao processar a compra', {
             position: 'top-center',
             autoClose: 2000,
@@ -211,7 +289,6 @@ const Cart = () => {
         }
       }
     } catch (error) {
-      console.error('Erro ao processar a compra:', error)
       toast.error('Erro ao processar a compra', {
         position: 'top-center',
         autoClose: 2000,
@@ -219,7 +296,6 @@ const Cart = () => {
     }
   }
 
-  // Função para lidar com a compra
   const handleBuy = async () => {
     if (cartItems.length > 0) {
       await criarCheckoutSession()
@@ -235,58 +311,112 @@ const Cart = () => {
   }
 
   return (
-    <div>
-      <h2>Meu Carrinho</h2>
-      {cartItems.length === 0 ? (
-        <p>Seu carrinho está vazio.</p>
-      ) : (
-        <ul>
-          {cartItems.map((item, index) => (
-            <li key={index}>
-              <img
-                src={item.Imagem || 'default-image-url'} // Verifique se a imagem está correta
-                alt={item.Nome}
-                style={{ width: '50px', height: '50px' }}
-              />
-              <p>
-                {item.Nome} - R${item.Preco}
-              </p>
-              <p>Quantidade no carrinho: {productQuantities[item.produtoId]}</p>
-              <button
-                onClick={() =>
-                  ajustarQuantidade(
-                    item.produtoId,
-                    productQuantities[item.produtoId] - 1,
-                    item.Quantidade
-                  )
-                }
-              >
-                -
-              </button>
-              <button
-                onClick={() =>
-                  ajustarQuantidade(
-                    item.produtoId,
-                    productQuantities[item.produtoId] + 1,
-                    item.Quantidade
-                  )
-                }
-              >
-                +
-              </button>
-              <button onClick={() => removerDoCarrinho(item.produtoId)}>
-                Remover
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      {cartItems.length > 0 && (
-        <>
-          <h3>Valor Total do Carrinho: R${totalPrice.toFixed(2)}</h3>
-          <button onClick={handleBuy}>Comprar</button>
-        </>
-      )}
+    <div className={styles.container}>
+      <div className="Menu">
+          <header className={styles.menu}>
+            <div className={styles.logo}>
+              <img src="/logo.png" alt="Logo" />
+            </div>
+            <div className={styles.notifications}>
+              {petNotifications.map((notification, index) => (
+                <div
+                  key={index}
+                  className={`${styles.notification} ${styles[notification.color]}`}
+                >
+                  Faltam apenas {notification.daysUntilVaccination} dias para{' '}
+                  {notification.petName} se vacinar!
+                </div>
+              ))}
+            </div>
+            <nav className={styles.nav}>
+              <ul className={styles.navList}>
+                <div className={styles.searchBar}>
+                  <div className={styles.imgLupa}>
+                    <img src="/lupa.png" alt="Logo" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Buscar produtos..."
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <div className={'styles.Agenda'}>
+                  <li className={styles.navItem}>
+                    <button
+                      className={styles.cartButton}
+                      onClick={handleSchedulingClick}
+                    >
+                      <img src="/agenda.png" alt="Logo" />
+                    </button>
+                  </li>
+                </div>
+                <li className={styles.navItem}>
+                  <button onClick={handleCartClick}>
+                    <img src="/carrinho.png" alt="Logo" />
+                  </button>
+                </li>
+              </ul>
+              {!currentUser && (
+                <a href="/Autenticacao/login">
+                  <button className={styles.button}>Fazer Login</button>
+                </a>
+              )}
+              {currentUser && (
+                <button className={styles.button} onClick={handleLogout}>
+                  Logout
+                </button>
+              )}
+            </nav>
+          </header>
+        </div>
+        <div className={styles.carrinho}>
+        <h2 className={styles.h2}>Meu Carrinho</h2>
+        {cartItems.length === 0 ? (
+          <p className={styles.emptyCart}>Seu carrinho está vazio.</p>
+        ) : (
+          <ul>
+            {cartItems.map((item) => (
+              <li key={item.produtoId} className={styles.li}>
+                <img className={styles.img} src={item.Imagem} alt={item.Nome} />
+                <div>
+                  <p className={styles.p}>{item.Nome}</p>
+                  <p className={styles.p}>R$ {item.Preco}</p>
+                </div>
+                <div className={styles.quantityControls}>
+                  <button
+                    onClick={() => ajustarQuantidade(item.produtoId, productQuantities[item.produtoId] - 1, item.Estoque)}
+                  >
+                    -
+                  </button>
+                  <span>{productQuantities[item.produtoId]}</span>
+                  <button
+                    onClick={() => ajustarQuantidade(item.produtoId, productQuantities[item.produtoId] + 1, item.Estoque)}
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  className={styles.removeButton}
+                  onClick={() => removerDoCarrinho(item.produtoId)}
+                >
+                  Remover
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className={styles.total}>
+          <p>Total: R$ {totalPrice.toFixed(2)}</p>
+        </div>
+        <button
+          className={styles.buyButton}
+          onClick={handleBuy}
+        >
+          Finalizar Compra
+        </button>
+        <ToastContainer />
+      </div>
     </div>
   )
 }

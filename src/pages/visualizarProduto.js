@@ -113,6 +113,7 @@ export const CrudProduto = () => {
 
   return (
     <div className={style.container}>
+      <h1 className={style.title}>Visualizar Produtos</h1>
       <input
         className={style.searchInput}
         type="text"

@@ -6,8 +6,10 @@ import { adicionarAoCarrinho } from '../../components/carrinhoUtils'
 import { useAuth } from '../../components/authContext'
 import { ToastContainer, toast } from 'react-toastify'
 import Modal from 'react-modal'
-import styles from '../modalStyles.module.css'
+import modalStyles from '../modalStyles.module.css';
 import 'react-toastify/dist/ReactToastify.css'
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import styles from './produtos.module.css'
 
 const Produto = () => {
   const router = useRouter()
@@ -18,6 +20,115 @@ const Produto = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [enderecoUsuario, setEnderecoUsuario] = useState('')
   const { currentUser, logout } = useAuth()
+  const [petNotifications, setPetNotifications] = useState([])
+  const [products, setProducts] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+
+  useEffect(() => {
+    const fetchPetData = async () => {
+      if (currentUser) {
+        const q = query(
+          collection(db, 'Pets'),
+          where('UsuarioID', '==', currentUser.uid)
+        )
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+          const notifications = []
+
+          querySnapshot.forEach(doc => {
+            const petData = doc.data()
+            const nextVaccinationDate = petData.PróximaVacinação.toDate()
+            const today = new Date()
+            const timeDiff = nextVaccinationDate - today
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
+
+            let color = ''
+            if (daysDiff <= 10) {
+              color = 'red'
+            } else if (daysDiff > 10 && daysDiff <= 20) {
+              color = 'yellow'
+            } else {
+              color = 'green'
+            }
+
+            notifications.push({
+              petName: petData.Nome,
+              daysUntilVaccination: daysDiff,
+              color,
+            })
+          })
+
+          setPetNotifications(notifications)
+        }
+      }
+    }
+
+    const fetchProducts = async () => {
+      const q = query(collection(db, 'Produtos'))
+      const querySnapshot = await getDocs(q)
+
+      const productsList = []
+      querySnapshot.forEach(doc => {
+        const productData = doc.data()
+        productsList.push({
+          id: doc.id,
+          nome: productData.Nome,
+          descricao: productData.Descrição,
+          quantidade: productData.Quantidade,
+          imagem: productData.Imagem,
+          preco: productData.Preco,
+        })
+      })
+
+      setProducts(productsList)
+    }
+
+    fetchPetData()
+    fetchProducts()
+  }, [currentUser])
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      clearNotifications()
+      console.log('Usuário deslogado com sucesso.')
+      router.push('/')
+    } catch (error) {
+      console.error('Erro ao deslogar:', error)
+    }
+  }
+
+  const clearNotifications = () => {
+    setPetNotifications([])
+  }
+
+  const handleSchedulingClick = () => {
+    if (currentUser) {
+      router.push('/agendamento')
+    } else {
+      router.push('Autenticacao/login')
+    }
+  }
+  const handleCartClick = () => {
+    if (currentUser) {
+      router.push('/cart')
+    } else {
+      router.push('Autenticacao/login')
+    }
+  }
+
+  const handleProductClick = productId => {
+    if (currentUser) {
+      router.push(`/produtos/${productId}`)
+    } else {
+      router.push('Autenticacao/login')
+    }
+  }
+
+  const filteredProducts = products.filter(product =>
+    product.nome.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   useEffect(() => {
     const script = document.createElement('script')
@@ -173,35 +284,107 @@ const Produto = () => {
 
   return (
     <div>
-      <h1>{produto.Nome}</h1>
-      <img
-        src={produto.Imagem}
-        alt={produto.Nome}
-        style={{ maxWidth: '300px' }}
-      />
-      <p>Preço: R${produto.Preco}</p>
-      <p>Quantidade em estoque: {produto.Quantidade}</p>
-      <p>
-        Descrição:{' '}
-        {produto.Descricao ? produto.Descricao : 'Nenhuma descrição disponível'}
-      </p>
-
-      <label htmlFor="quantidade">Quantidade:</label>
-      <input
-        type="number"
-        id="quantidade"
-        value={quantidade}
-        min="1"
-        max={produto.Quantidade}
-        onChange={e => setQuantidade(e.target.value)}
-      />
-
-      <button type="button" onClick={handleAdicionarAoCarrinho}>
-        Adicionar ao Carrinho
-      </button>
-      <button type="button" onClick={handleComprarAgora}>
-        Comprar Agora
-      </button>
+      <div className="Menu">
+          <header className={styles.menu}>
+            <div className={styles.logo}>
+              <img src="/logo.png" alt="Logo" />
+            </div>
+            <div className={styles.notifications}>
+              {petNotifications.map((notification, index) => (
+                <div
+                  key={index}
+                  className={`${styles.notification} ${styles[notification.color]}`}
+                >
+                  Faltam apenas {notification.daysUntilVaccination} dias para{' '}
+                  {notification.petName} se vacinar!
+                </div>
+              ))}
+            </div>
+            <nav className={styles.nav}>
+              <ul className={styles.navList}>
+                <div className={styles.searchBar}>
+                  <div className={styles.imgLupa}>
+                    <img src="/lupa.png" alt="Logo" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Buscar produtos..."
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <div className={'styles.Agenda'}>
+                  <li className={styles.navItem}>
+                    <button
+                      className={styles.cartButton}
+                      onClick={handleSchedulingClick}
+                    >
+                      <img src="/agenda.png" alt="Logo" />
+                    </button>
+                  </li>
+                </div>
+                <li className={styles.navItem}>
+                  <button onClick={handleCartClick}>
+                    <img src="/carrinho.png" alt="Logo" />
+                  </button>
+                </li>
+              </ul>
+              {!currentUser && (
+                <a href="/Autenticacao/login">
+                  <button className={styles.button}>Fazer Login</button>
+                </a>
+              )}
+              {currentUser && (
+                <button className={styles.button} onClick={handleLogout}>
+                  Logout
+                </button>
+              )}
+            </nav>
+          </header>
+        </div>
+      <div className={styles.produto}>
+        <div className={styles.titleProdutos}>
+          <h3>{produto.Nome}</h3>
+        </div>
+        <div className={styles.Produto}>
+          <div className={styles.imgProdutos}>
+            <img
+              src={produto.Imagem}
+              alt={produto.Nome}
+              style={{ maxWidth: '400px' }}
+            />
+          </div>
+          <div className={styles.descrição}>
+            <p>
+              {' '}
+              {produto.Descricao ? produto.Descricao : 'Nenhuma descrição disponível'}
+            </p>
+          </div>
+        </div>
+          <div className={styles.infoProdutos}>
+            <div className={styles.titleProdutos}>
+              <p>Valor: R${produto.Preco}</p>
+            </div>
+              <p>Estoque: {produto.Quantidade}</p>
+            <label htmlFor="quantidade">Quantidade:</label>
+          <input
+            type="number"
+            id="quantidade"
+            value={quantidade}
+            min="1"
+            max={produto.Quantidade}
+            onChange={e => setQuantidade(e.target.value)}
+          />
+          <div className={styles.botao}>
+            <button type="button" onClick={handleAdicionarAoCarrinho}>
+              Adicionar ao Carrinho
+            </button>
+            <button type="button" onClick={handleComprarAgora}>
+              Finalizar a Sua Compra
+            </button>
+          </div>
+        </div>
+      </div>
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
@@ -229,39 +412,39 @@ const Produto = () => {
           },
         }}
       >
-        <h2 className={styles.modalTitle}>Confirmar Endereço</h2>
-        <p className={styles.modalText}>
+        <h2 className={modalStyles.modalTitle}>Confirmar Endereço</h2>
+        <p className={modalStyles.modalText}>
           <strong>Endereço:</strong>{' '}
           {enderecoUsuario || 'Endereço não encontrado'}
         </p>
 
-        <label htmlFor="selecioneServico" className={styles.modalLabel}>
+        <label htmlFor="selecioneServico" className={modalStyles.modalLabel}>
           Selecione o Serviço:
         </label>
         <select
           id="selecioneServico"
           onChange={e => atualizarPreco(e)}
-          className={styles.modalSelect}
+          className={modalStyles.modalSelect}
         >
           <option value="buscar_na_loja">Buscar na Loja</option>
           <option value="entrega">Entrega (+ R$ 10,00)</option>
         </select>
 
-        <p className={styles.modalPrice}>
+        <p className={modalStyles.modalPrice}>
           <strong>Preço final:</strong>{' '}
           {produto.PrecoComEntrega
             ? `R$ ${produto.PrecoComEntrega.toFixed(2)}`
             : `R$ ${produto.Preco.toFixed(2)}`}
         </p>
 
-        <div className={styles.modalActions}>
+        <div className={modalStyles.modalActions}>
           <button
-            className={styles.modalBtnConfirm}
+            className={modalStyles.modalBtnConfirm}
             onClick={confirmarEndereco}
           >
             Confirmar Endereço
           </button>
-          <button className={styles.modalBtnCancel} onClick={retornar}>
+          <button className={modalStyles.modalBtnCancel} onClick={retornar}>
             Retornar
           </button>
         </div>
