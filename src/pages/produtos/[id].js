@@ -14,7 +14,7 @@ const Produto = () => {
   const { id } = router.query // Pega o ID da URL
   const [produto, setProduto] = useState(null)
   const [carregando, setCarregando] = useState(true)
-  const [quantidade, setQuantidade] = useState(1) // Adicionar estado para quantidade
+  const [quantity, setquantity] = useState(1) // Adicionar estado para quantity
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [enderecoUsuario, setEnderecoUsuario] = useState('')
   const { currentUser, logout } = useAuth()
@@ -87,7 +87,7 @@ const Produto = () => {
 
   const handleAdicionarAoCarrinho = async () => {
     try {
-      await adicionarAoCarrinho(id, { ...produto, quantidade }) // Passar quantidade
+      await adicionarAoCarrinho(id, { ...produto, quantity }) // Passar quantity
       toast.success('Produto adicionado ao carrinho', {
         position: 'top-center',
         autoClose: 2000,
@@ -100,26 +100,10 @@ const Produto = () => {
       })
     }
   }
-  const atualizarPreco = e => {
-    const precoBase = parseFloat(produto.Preco) * quantidade
-    const precoComEntrega = precoBase + 10
-
-    if (e.target.value === 'entrega') {
-      setProduto(prevProduto => ({
-        ...prevProduto,
-        PrecoComEntrega: precoComEntrega,
-      }))
-    } else {
-      setProduto(prevProduto => ({
-        ...prevProduto,
-        PrecoComEntrega: precoBase, // Reseta para preço base
-      }))
-    }
-  }
 
   const handleComprarAgora = () => {
     // Atualiza o preço com base no estado atual
-    const precoBase = parseFloat(produto.Preco) * quantidade
+    const precoBase = parseFloat(produto.Preco) * quantity // Sem multiplicar pela quantidade aqui
     setProduto(prevProduto => ({
       ...prevProduto,
       PrecoComEntrega: precoBase, // Define o preço inicial sem entrega
@@ -127,22 +111,50 @@ const Produto = () => {
     setIsModalOpen(true) // Abre o modal de confirmação de endereço
   }
 
+  const atualizarPreco = e => {
+    const precoBase = parseFloat(produto.Preco) * quantity // Preço base com a quantidade
+    const precoComEntrega = precoBase + 10 // Preço com entrega
+
+    if (e.target.value === 'entrega') {
+      // Atualiza o preço com entrega
+      setProduto(prevProduto => ({
+        ...prevProduto,
+        PrecoComEntrega: precoComEntrega,
+      }))
+    } else {
+      // Reseta o preço para o base (sem entrega)
+      setProduto(prevProduto => ({
+        ...prevProduto,
+        PrecoComEntrega: precoBase,
+      }))
+    }
+  }
+
   const confirmarEndereco = async () => {
-    const precoFinal = produto.PrecoComEntrega || produto.Preco * quantidade
-    console.log('Preço final calculado no frontend:', precoFinal)
+    // Aqui, fazemos o cálculo correto
+    const precoBase = parseFloat(produto.Preco)
+    const precoComEntrega = produto.PrecoComEntrega || precoBase // Se houver entrega, pega o preço com entrega
+
+    // Agora já consideramos a quantidade ao enviar para o Stripe
+    console.log(quantity)
+    const precoTotal = precoComEntrega ? precoComEntrega / quantity : precoBase
+
+    console.log('Preço final calculado no frontend:', precoTotal)
 
     try {
       const response = await fetch('/api/criarCheckoutSession', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          priceID: produto.priceID,
-          quantidade,
-          produtoId: id,
-          nome: produto.Nome,
-          descricao: produto.Descricao,
-          imagem: produto.Imagem,
-          preco: precoFinal, // Certifique-se que o preço está correto
+          cartItems: [
+            {
+              produtoId: id,
+              Nome: produto.Nome,
+              Descricao: produto.Descricao,
+              price: precoTotal, // Preço total com quantidade aplicada
+              quantity: quantity, // Quantidade de produtos
+            },
+          ],
           endereco: enderecoUsuario,
         }),
       })
@@ -166,7 +178,6 @@ const Produto = () => {
     }
     setIsModalOpen(false)
   }
-
   const retornar = () => {
     setIsModalOpen(false)
   }
@@ -186,14 +197,14 @@ const Produto = () => {
         {produto.Descricao ? produto.Descricao : 'Nenhuma descrição disponível'}
       </p>
 
-      <label htmlFor="quantidade">Quantidade:</label>
+      <label htmlFor="quantity">Quantidade:</label>
       <input
         type="number"
-        id="quantidade"
-        value={quantidade}
+        id="quantity"
+        value={quantity}
         min="1"
         max={produto.Quantidade}
-        onChange={e => setQuantidade(e.target.value)}
+        onChange={e => setquantity(e.target.value)}
       />
 
       <button type="button" onClick={handleAdicionarAoCarrinho}>

@@ -13,8 +13,6 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const router = useRouter()
 
-  const uiui = 'foi.'
-
   useEffect(() => {
     const fetchPetData = async () => {
       if (currentUser) {
@@ -65,7 +63,7 @@ function Home() {
         productsList.push({
           id: doc.id,
           nome: productData.Nome,
-          descricao: productData.Descrição,
+          descricao: productData.Descricao,
           quantidade: productData.Quantidade,
           imagem: productData.Imagem,
           preco: productData.Preco,

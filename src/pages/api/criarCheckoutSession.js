@@ -5,37 +5,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const {
-      cartItems,
-      produtoId,
-      nome,
-      descricao,
-      preco,
-      quantidade,
-      endereco,
-    } = req.body
+    const { cartItems, deliveryFee } = req.body
 
     let lineItems
     let produtoIds // Criação da variável para armazenar os IDs dos produtos
 
     console.log('Recebendo requisição para criar sessão de checkout:', req.body)
-    console.log('Preço recebido no backend:', preco)
 
     // Validação dos parâmetros recebidos
-    if (cartItems && cartItems.length > 0) {
-      console.log('Itens no carrinho:', cartItems)
-
-      // Se cartItems estiver presente, use-o
+    try {
+      let totalQuantity = 0
       lineItems = cartItems.map(item => {
-        const unit_amount =
-          item.price && !Number.isNaN(item.price)
-            ? Math.round(item.price * 100)
-            : 0
-
-        // Validação dos campos nome e descrição
-        if (!item.Nome || !item.Descricao) {
-          throw new Error('Nome ou descrição do produto ausentes.')
+        if (!item.price || Number.isNaN(item.price)) {
+          throw new Error(`Preço inválido para o produto: ${item.Nome}`)
         }
+        console.log('Chegou')
+        const unit_amount = Math.round(item.price * 100) // Preço em centavos
+        const quantity = item.quantity || 1
+        console.log('Chegou2')
+        totalQuantity += quantity
 
         return {
           price_data: {
@@ -44,61 +32,50 @@ export default async function handler(req, res) {
               name: item.Nome,
               description: item.Descricao,
             },
-            unit_amount, // Preço em centavos
+            unit_amount,
           },
-          quantity: item.quantity, // Quantidade variável, padrão para 1
+          quantity,
         }
       })
+      console.log('Chegou3')
 
-      // Captura os IDs dos produtos em uma variável separada
-      produtoIds = cartItems.map(item => item.produtoId)
-
-      // Verifica se a quantidade em estoque é suficiente
-      cartItems.forEach(item => {
-        if (item.Quantidade < item.quantidade) {
-          throw new Error(
-            `Estoque insuficiente para o produto: ${item.Nome}. Disponível: ${item.Quantidade}`
-          )
-        }
-      })
-    } else if (produtoId && nome && descricao && preco && quantidade) {
-      // Caso contrário, valide e use os parâmetros do produto único
-      const unit_amount = Math.round(preco * 100)
-
-      if (!nome || !descricao) {
-        return res
-          .status(400)
-          .json({ error: 'Nome ou descrição do produto ausentes.' })
-      }
-
-      lineItems = [
-        {
+      // Adiciona o frete como um item separado (se aplicável)
+      if (deliveryFee && !Number.isNaN(deliveryFee)) {
+        lineItems.push({
           price_data: {
             currency: 'brl',
             product_data: {
-              name: nome,
-              description: descricao,
+              name: 'Frete',
+              description: 'Taxa de entrega',
             },
-            unit_amount, // Preço em centavos
+            unit_amount: Math.round(deliveryFee * 100), // Frete em centavos
           },
-          quantity: 1, // Quantidade do produto, padrão para 1
-          //quantity: quantidade || 1, // Quantidade do produto, padrão para 1
-        },
-      ]
-
-      produtoIds = [produtoId] // Atribuição direta caso seja um produto único
-
-      // Verifique o estoque do produto único
-      if (req.body.Estoque < quantidade) {
-        return res
-          .status(400)
-          .json({ error: `Estoque insuficiente para o produto: ${nome}.` })
+          quantity: 1, // Sempre 1 para o frete
+        })
       }
-    } else {
-      return res
-        .status(400)
-        .json({ error: 'Parâmetros obrigatórios ausentes.' })
+
+      console.log('Chegou4')
+      // Captura os IDs dos produtos em uma variável separada
+      produtoIds = [...new Set(cartItems.map(item => item.produtoId))] // Remove duplicatas
+      console.log('Produto Ids: ')
+      console.log(produtoIds)
+
+      // Verifica se a quantidade em estoque é suficiente (pode ser um campo vindo da API do produto, por exemplo)
+      cartItems.forEach(item => {
+        if (item.quantity < item.quantity) {
+          throw new Error(
+            `Estoque insuficiente para o produto: ${item.Nome}. Disponível: ${item.quantity}`
+          )
+        }
+      })
+    } catch (error) {
+      return res.status(400).json({ error: error.message })
     }
+
+    console.log('Chegou5')
+    console.log('DeliveryFee: ')
+    console.log(deliveryFee)
+
     try {
       // Cria uma sessão de checkout no Stripe
       const session = await stripe.checkout.sessions.create({
@@ -109,7 +86,7 @@ export default async function handler(req, res) {
         cancel_url: `${req.headers.origin}/cancelado`,
         metadata: {
           produtoIds: JSON.stringify(produtoIds), // Usando a variável produtoIds
-          endereco: endereco,
+          deliveryFee: String(deliveryFee),
         },
       })
 

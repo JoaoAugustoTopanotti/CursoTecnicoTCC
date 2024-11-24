@@ -1,15 +1,11 @@
 import { buffer } from 'micro'
 import * as admin from 'firebase-admin'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import Stripe from 'stripe'
 
 // Inicializa o Firebase Admin se ainda não estiver inicializado
-if (!admin.apps.length) {
-  const __filename = fileURLToPath(import.meta.url)
-  const __dirname = path.dirname(__filename)
-  const serviceAccount = require('../../../config/firebaseSecret.json')
+const serviceAccount = require('../../../config/firebaseSecret.json') // Certifique-se de que o caminho está correto
 
+if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   })
@@ -36,98 +32,130 @@ export default async function webhookHandler(req, res) {
     const sig = req.headers['stripe-signature']
 
     let event
-
+    let deliveryFee = 0
     try {
       event = stripe.webhooks.constructEvent(buf, sig, endpointSecret)
     } catch (err) {
-      console.error('Erro ao verificar assinatura do webhook:', err)
+      console.error('Erro ao verificar assinatura do webhook:', err.message)
       return res.status(400).send(`Webhook error: ${err.message}`)
     }
-
+    console.log('Evento recebido:', JSON.stringify(event, null, 2))
     // Manipula os eventos do Stripe
     switch (event.type) {
       case 'checkout.session.completed': {
+        console.log('Evento recebido:', JSON.stringify(event, null, 2))
+        console.log('Evento tipo:', event.type)
+
         const session = event.data.object
+        console.log('Sessão recebida:', session) // Log da sessão recebida
 
-        console.log('Sessão de checkout completada:', session)
-
-        if (session.metadata && session.metadata.produtoIds) {
-          const lineItems = await stripe.checkout.sessions.listLineItems(
-            session.id
-          )
-          const produtoIds = JSON.parse(session.metadata.produtoIds)
-          const endereco = session.metadata.endereco
-          console.log('IDs dos produtos comprados:', produtoIds)
-
-          // Cria uma lista de todos os itens da venda
-          const itensVendidos = []
-
-          for (let i = 0; i < lineItems.data.length; i++) {
-            const produtoId = produtoIds[i]
-            console.log(lineItems.data[i].quantity)
-            const quantidadeComprada = lineItems.data[i].quantity
-
-            const produtoRef = db.collection('Produtos').doc(produtoId)
-
-            await db.runTransaction(async transaction => {
-              const produtoDoc = await transaction.get(produtoRef)
-              if (!produtoDoc.exists) {
-                throw new Error('Produto não encontrado')
-              }
-
-              const produtoData = produtoDoc.data()
-              const novaQuantidade = produtoData.Quantidade - quantidadeComprada
-
-              if (novaQuantidade < 0) {
-                throw new Error('Estoque insuficiente.')
-              }
-
-              // Atualiza o estoque
-              transaction.update(produtoRef, { Quantidade: novaQuantidade })
-
-              // Adiciona o item vendido à lista
-              itensVendidos.push({
-                produtoId,
-                Nome: produtoData.Nome,
-                Descrição: produtoData.Descricao,
-                Imagem: produtoData.Imagem,
-                Quantidade: quantidadeComprada,
-                Preço: lineItems.data[i].amount_total / 100, // Preço total por item
-              })
-            })
-          }
-
-          // Salva todos os itens comprados em um único documento na coleção 'Vendas'
-          const vendaRef = db.collection('Vendas')
-          const vendaData = {
-            Itens: itensVendidos,
-            endereco: endereco,
-            Total: session.amount_total / 100,
-            data: admin.firestore.Timestamp.now(),
-            Cliente: session.customer_email || 'Cliente não identificado',
-          }
-          await vendaRef.add(vendaData)
-
-          console.log('Venda registrada com sucesso:', vendaData)
-        } else {
-          console.error('Metadata ou produtoIds não estão presentes na sessão.')
+        let produtoIds
+        // Verificação e processamento de produtoIds
+        try {
+          produtoIds = JSON.parse(session.metadata.produtoIds)
+          console.log('Produto IDs extraídos:', produtoIds)
+        } catch (error) {
+          console.error('Erro ao processar produtoIds:', error.message)
         }
-        break
-      }
-      case 'checkout.session.expired': {
-        const sessionExpired = event.data.object
-        console.log('Checkout session expired:', sessionExpired)
-        break
-      }
-      case 'payment_intent.created': {
-        const paymentIntent = event.data.object
-        console.log('Payment intent created:', paymentIntent.id)
-        break
-      }
 
-      case 'charge.updated': {
-        const chargeUpdated = event.data.object
-        console.log('Charge updated:', chargeUpdated.id, chargeUpdated.status)
+        // Se você precisar dos itens da sessão, pode manter isso aqui
+        const lineItems = await stripe.checkout.sessions.listLineItems(
+          session.id
+        )
+        console.log(lineItems) // Verifique os dados antes de acessar lineItems.data
+        console.log(lineItems.data) // Agora deve ser possível acessar lineItems.data
+
+        const rawDeliveryFee = session.metadata.deliveryFee
+
+        console.log('Raw Delivery Fee:', rawDeliveryFee)
+        // Verifique se os IDs de produto e os itens de linha coincidem
+        console.log('Produto IDs:', produtoIds)
+        console.log('Itens de linha:', lineItems)
+        console.log(typeof lineItems) // Deve ser "object"
+        console.log(lineItems instanceof Object) // Deve ser true
+
+        // Convertendo deliveryFee para número (float) ou utilizando 0 como fallback
+        deliveryFee = Number.parseFloat(rawDeliveryFee)
+
+        if (Number.isNaN(deliveryFee)) {
+          console.error('Erro: deliveryFee não é um número válido, usando 0.')
+          deliveryFee = 0
+        } else {
+          console.log('Processed Delivery Fee:', deliveryFee)
+        }
+        console.log('Metadata da sessão recebida:', session.metadata)
+
+        const itensVendidos = [] // Array para consolidar todos os itens vendidos
+        console.log(typeof lineItems) // Deve ser "object"
+        console.log(lineItems instanceof Object) // Deve ser true
+        for (let i = 0; i < lineItems.data.length; i++) {
+          const produtoId = produtoIds[i]
+          const item = lineItems.data[i]
+          const quantidadeComprada = lineItems.data[i].quantity
+          if (
+            !produtoId ||
+            item.description === 'Frete' ||
+            item.type === 'shipping'
+          ) {
+            console.log(
+              `Ignorando item: ${item.description || 'Sem descrição'}`
+            )
+            continue // Pule este item e vá para o próximo
+          }
+          console.log('Chegou')
+
+          const produtoRef = db.collection('Produtos').doc(produtoId)
+          console.log('produtoId:', produtoId) // Verifique se o produtoId é válido
+          console.log(produtoIds)
+          await db.runTransaction(async transaction => {
+            const produtoDoc = await transaction.get(produtoRef)
+            if (!produtoDoc.exists) {
+              throw new Error('Produto não encontrado')
+            }
+            const produtoData = produtoDoc.data()
+            const novaQuantidade = produtoData.Quantidade - quantidadeComprada
+            console.log('Nova quantidade: ')
+            console.log(novaQuantidade)
+
+            transaction.update(produtoRef, { Quantidade: novaQuantidade })
+            console.log('ProdutoData.Preco: ')
+            console.log(produtoData.Preco)
+
+            // Adiciona o item ao array consolidado
+            itensVendidos.push({
+              produtoId,
+              Nome: produtoData.Nome,
+              Descricao: produtoData.Descricao,
+              Imagem: produtoData.Imagem,
+              Quantidade: quantidadeComprada, // Preço unitário do produto
+              Subtotal: produtoData.Preco * quantidadeComprada, // Subtotal do item
+            })
+          })
+        }
+        console.log('9')
+        // Adiciona um único documento na coleção Vendas
+        const vendaRef = db.collection('Vendas')
+        console.log('10')
+        const vendaData = {
+          Itens: itensVendidos,
+          PrecoTotal: itensVendidos.reduce(
+            (total, item) => total + item.Subtotal,
+            0
+          ), // Calcula o total da compra
+          data: admin.firestore.Timestamp.now(),
+          Frete: deliveryFee,
+          Cliente: session.customer_email || 'Cliente não identificado',
+        }
+        console.log('11')
+        try {
+          await vendaRef.add(vendaData)
+          console.log('12')
+          console.log('Venda registrada com sucesso:', vendaData)
+        } catch (error) {
+          console.error('Erro ao registrar a venda:', error)
+        }
+
+        console.log('Venda registrada com sucesso:', vendaData)
         break
       }
       case 'payment_intent.succeeded': {
@@ -135,48 +163,26 @@ export default async function webhookHandler(req, res) {
         console.log('Pagamento bem-sucedido:', paymentIntent.id)
         break
       }
-
       case 'payment_intent.payment_failed': {
         const paymentIntent = event.data.object
-        const failureReason =
-          paymentIntent.last_payment_error &&
-          paymentIntent.last_payment_error.message
+        const failureReason = paymentIntent.last_payment_error?.message // Usando o encadeamento opcional
         console.error(`Pagamento falhou: ${failureReason}`)
         break
       }
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object
+        console.log('Pagamento assíncrono bem-sucedido:', session.id)
 
-      case 'invoice.payment_succeeded': {
-        const invoice = event.data.object
-        console.log('Pagamento de fatura bem-sucedido:', invoice.id)
+        // Aqui você pode adicionar o que precisa para processar o evento
         break
       }
+      case 'checkout.session.async_payment_failed': {
+        const session = event.data.object
+        console.error('Pagamento assíncrono falhou:', session.id)
 
-      case 'invoice.payment_failed': {
-        const invoice = event.data.object
-        console.error(
-          `Pagamento de fatura falhou para o cliente: ${invoice.customer}`
-        )
+        // Aqui você pode adicionar o que precisa para processar o evento
         break
       }
-
-      case 'customer.subscription.created': {
-        const subscription = event.data.object
-        console.log('Nova assinatura criada:', subscription.id)
-        break
-      }
-
-      case 'customer.subscription.updated': {
-        const subscription = event.data.object
-        console.log('Assinatura atualizada:', subscription.id)
-        break
-      }
-
-      case 'customer.subscription.deleted': {
-        const subscription = event.data.object
-        console.log('Assinatura cancelada:', subscription.id)
-        break
-      }
-
       default:
         console.warn(`Evento de webhook não processado: ${event.type}`)
     }
