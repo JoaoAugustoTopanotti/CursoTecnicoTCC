@@ -170,7 +170,6 @@ const Produto = () => {
         }
       }
     } catch (error) {
-      console.error('Erro ao processar a compra:', error)
       toast.error('Erro ao processar a compra', {
         position: 'top-center',
         autoClose: 2000,

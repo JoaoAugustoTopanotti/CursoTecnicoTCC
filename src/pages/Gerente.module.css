@@ -1,57 +1,47 @@
-/* src/pages/Gerente.module.css */
 .gerenteContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-  }
-  
-  .gerenteContent {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .gerenteMain {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 1200px; /* Ajuste o tamanho máximo conforme necessário */
-  }
-  
-  .gerenteImage {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .gerenteImage img {
-    max-width: 400px; /* Aumenta o tamanho da imagem */
-    border-radius: 8px;
-    align-items: baseline;
-  }
-  
-  .gerenteButtons {
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .gerenteButtons button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .gerenteButtons button:hover {
-    background-color: #45a049;
-  }
-  
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #1c538a;
+  color: #ecf0f1;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin: 10px 0;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.sidebar ul li:hover {
+  background-color: #132a42;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f9f9f9;
+  overflow-y: auto;
+}
+
+.lotoTeT{
+  text-align: center;
+  margin-top: 210px;
+}

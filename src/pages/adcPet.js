@@ -1,34 +1,35 @@
-import React, { useState, useEffect } from 'react'
-import { db } from '../components/firebaseConfig'
-import { collection, addDoc, getDocs } from 'firebase/firestore'
-import { TextField, Button, MenuItem } from '@mui/material'
-import Autocomplete from '@mui/material/Autocomplete'
+import React, { useState, useEffect } from 'react';
+import { db } from '../components/firebaseConfig';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { TextField, Button, MenuItem } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import styles from './AdcPet.module.css'; // Nome do arquivo CSS ajustado
 
 function AdicionarPet() {
-  const [nome, setNome] = useState('')
-  const [idade, setIdade] = useState('')
-  const [pelagem, setPelagem] = useState('')
-  const [peso, setPeso] = useState('')
-  const [tamanho, setTamanho] = useState('')
-  const [ultimaVacinacao, setUltimaVacinacao] = useState(null)
-  const [proximaVacinacao, setProximaVacinacao] = useState(null)
-  const [usuarioID, setUsuarioID] = useState('')
-  const [valorBanho, setValorBanho] = useState('')
-  const [usuarios, setUsuarios] = useState([])
+  const [nome, setNome] = useState('');
+  const [idade, setIdade] = useState('');
+  const [pelagem, setPelagem] = useState('');
+  const [peso, setPeso] = useState('');
+  const [tamanho, setTamanho] = useState('');
+  const [ultimaVacinacao, setUltimaVacinacao] = useState(null);
+  const [proximaVacinacao, setProximaVacinacao] = useState(null);
+  const [usuarioID, setUsuarioID] = useState('');
+  const [valorBanho, setValorBanho] = useState('');
+  const [usuarios, setUsuarios] = useState([]);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
-      const usuariosRef = collection(db, 'Usuario')
-      const usuariosSnap = await getDocs(usuariosRef)
-      const usuariosList = usuariosSnap.docs.map(doc => ({
+      const usuariosRef = collection(db, 'Usuario');
+      const usuariosSnap = await getDocs(usuariosRef);
+      const usuariosList = usuariosSnap.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }))
-      setUsuarios(usuariosList)
-    }
+      }));
+      setUsuarios(usuariosList);
+    };
 
-    fetchUsuarios()
-  }, [])
+    fetchUsuarios();
+  }, []);
 
   const handleAdicionarPet = async () => {
     if (
@@ -53,35 +54,34 @@ function AdicionarPet() {
             : null,
           UsuarioID: usuarioID,
           ValorBanho: Number.parseFloat(valorBanho),
-        })
-        alert('Pet adicionado com sucesso!')
-        // Limpar os campos após adicionar o pet
-        setNome('')
-        setIdade('')
-        setPelagem('')
-        setPeso('')
-        setTamanho('')
-        setUltimaVacinacao(null)
-        setProximaVacinacao(null)
-        setUsuarioID('')
-        setValorBanho('')
+        });
+        alert('Pet adicionado com sucesso!');
+        setNome('');
+        setIdade('');
+        setPelagem('');
+        setPeso('');
+        setTamanho('');
+        setUltimaVacinacao(null);
+        setProximaVacinacao(null);
+        setUsuarioID('');
+        setValorBanho('');
       } catch (error) {
-        console.error('Erro ao adicionar pet:', error)
-        alert('Erro ao adicionar pet. Tente novamente.')
+        console.error('Erro ao adicionar pet:', error);
+        alert('Erro ao adicionar pet. Tente novamente.');
       }
     } else {
-      alert('Preencha todos os campos obrigatórios.')
+      alert('Preencha todos os campos obrigatórios.');
     }
-  }
+  };
 
   return (
-    <div>
-      <h1>Adicionar Pet Banho e Tosa</h1>
-      <form noValidate>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Adicionar Pet Banho e Tosa</h1>
+      <form className={styles.form} noValidate>
         <TextField
           label="Nome"
           value={nome}
-          onChange={e => setNome(e.target.value)}
+          onChange={(e) => setNome(e.target.value)}
           required
           fullWidth
           margin="normal"
@@ -90,7 +90,7 @@ function AdicionarPet() {
           label="Idade"
           type="number"
           value={idade}
-          onChange={e => setIdade(e.target.value)}
+          onChange={(e) => setIdade(e.target.value)}
           required
           fullWidth
           margin="normal"
@@ -99,7 +99,7 @@ function AdicionarPet() {
           label="Pelagem"
           select
           value={pelagem}
-          onChange={e => setPelagem(e.target.value)}
+          onChange={(e) => setPelagem(e.target.value)}
           required
           fullWidth
           margin="normal"
@@ -112,7 +112,7 @@ function AdicionarPet() {
           label="Peso (kg)"
           type="number"
           value={peso}
-          onChange={e => setPeso(e.target.value)}
+          onChange={(e) => setPeso(e.target.value)}
           required
           fullWidth
           margin="normal"
@@ -121,7 +121,7 @@ function AdicionarPet() {
           label="Tamanho"
           select
           value={tamanho}
-          onChange={e => setTamanho(e.target.value)}
+          onChange={(e) => setTamanho(e.target.value)}
           required
           fullWidth
           margin="normal"
@@ -137,7 +137,7 @@ function AdicionarPet() {
             shrink: true,
           }}
           value={ultimaVacinacao || ''}
-          onChange={e => setUltimaVacinacao(e.target.value)}
+          onChange={(e) => setUltimaVacinacao(e.target.value)}
           fullWidth
           margin="normal"
         />
@@ -148,17 +148,17 @@ function AdicionarPet() {
             shrink: true,
           }}
           value={proximaVacinacao || ''}
-          onChange={e => setProximaVacinacao(e.target.value)}
+          onChange={(e) => setProximaVacinacao(e.target.value)}
           fullWidth
           margin="normal"
         />
         <Autocomplete
           options={usuarios}
-          getOptionLabel={option => option.Nome || option.Email}
+          getOptionLabel={(option) => option.Nome || option.Email}
           onChange={(event, newValue) =>
             setUsuarioID(newValue ? newValue.id : '')
           }
-          renderInput={params => (
+          renderInput={(params) => (
             <TextField {...params} label="Usuário" fullWidth margin="normal" />
           )}
         />
@@ -166,23 +166,22 @@ function AdicionarPet() {
           label="Valor do Banho"
           type="number"
           value={valorBanho}
-          onChange={e => setValorBanho(e.target.value)}
+          onChange={(e) => setValorBanho(e.target.value)}
           required
           fullWidth
           margin="normal"
         />
         <Button
           variant="contained"
-          color="primary"
+          className={styles.button}
           onClick={handleAdicionarPet}
           fullWidth
-          style={{ marginTop: '16px' }}
         >
           Adicionar Pet
         </Button>
       </form>
     </div>
-  )
+  );
 }
 
-export default AdicionarPet
+export default AdicionarPet;

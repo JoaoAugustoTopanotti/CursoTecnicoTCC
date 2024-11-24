@@ -243,7 +243,7 @@ const VisualizarAgenda = () => {
 
   return (
     <div className={styles.visualizarAgenda}>
-      <h1>Visualizar Agenda</h1>
+      <div className={styles.titulo}>Visualizar Agenda</div>
       {nextAppointment && (
         <div className={styles.notification}>
           Próximo atendimento daqui a{' '}

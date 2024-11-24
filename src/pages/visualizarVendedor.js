@@ -59,6 +59,7 @@ export const CrudVendedor = () => {
 
   return (
     <div className={style.container}>
+      <div className={style.titulo}>Visualizar Vendedor</div>
       <input
         className={style.searchInput}
         type="text"

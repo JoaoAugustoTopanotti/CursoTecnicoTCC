@@ -74,7 +74,7 @@ export const AdcProduto = () => {
 
   return (
     <div className={style.container}>
-      <h1>Adicionar Produtos</h1>
+      <div className={style.titulo}>Adicionar Produtos</div>
       <input
         className={style.input}
         type="text"

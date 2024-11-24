@@ -1,8 +1,8 @@
 .menu {
-  background-color: #f5fdf4;
+  background-color: #ffffff;
   display: flex;
   height: 85px;
-  box-shadow: rgb(177, 174, 174) 0px 5px 5px;
+  box-shadow: rgb(177, 174, 174) 0px 2px 4px;
 }
 
 .title {
@@ -163,6 +163,7 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
+  margin-bottom: 60px;
 }
 
 .productItem:hover {
@@ -228,3 +229,4 @@
   text-align: center;
   padding-top: 20px;
 }
+

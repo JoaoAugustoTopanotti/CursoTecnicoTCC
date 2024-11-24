@@ -1,6 +1,6 @@
 import { getFirestore, collection, doc, setDoc } from 'firebase/firestore'
 import { useState } from 'react'
-import style from './adcVendedor.module.css'
+import style from './adcCliente.module.css'
 import { db } from '../components/firebaseConfig'
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 
@@ -53,7 +53,7 @@ export const AdcVendedor = () => {
 
   return (
     <div className={style.container}>
-      <h1>Adicionar Vendedor</h1>
+      <div className={style.titulo}>Adicionar Vendedor</div>
       <form onSubmit={handleRegister}>
         <div>
           <input
