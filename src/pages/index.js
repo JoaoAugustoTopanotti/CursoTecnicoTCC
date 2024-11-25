@@ -127,17 +127,6 @@ function Home() {
             <div className={styles.logo}>
               <img src="/logo.png" alt="Logo" />
             </div>
-            <div className={styles.notifications}>
-              {petNotifications.map((notification, index) => (
-                <div
-                  key={index}
-                  className={`${styles.notification} ${styles[notification.color]}`}
-                >
-                  Faltam apenas {notification.daysUntilVaccination} dias para{' '}
-                  {notification.petName} se vacinar!
-                </div>
-              ))}
-            </div>
             <nav className={styles.nav}>
               <ul className={styles.navList}>
                 <div className={styles.searchBar}>
@@ -180,6 +169,17 @@ function Home() {
             </nav>
           </header>
         </div>
+        <div className={styles.notifications}>
+              {petNotifications.map((notification, index) => (
+                <div
+                  key={index}
+                  className={`${styles.notification} ${styles[notification.color]}`}
+                >
+                  Faltam apenas {notification.daysUntilVaccination} dias para{' '}
+                  {notification.petName} se vacinar!
+                </div>
+              ))}
+            </div>
         <div className={styles.banner}>
           <img src="/banner.png" alt="Logo" width={1350} />
         </div>

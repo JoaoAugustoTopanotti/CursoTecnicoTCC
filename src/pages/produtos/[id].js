@@ -354,14 +354,6 @@ const Produto = () => {
               style={{ maxWidth: '400px' }}
             />
           </div>
-          <div className={styles.descrição}>
-            <p>
-              {' '}
-              {produto.Descricao
-                ? produto.Descricao
-                : 'Nenhuma descrição disponível'}
-            </p>
-          </div>
         </div>
         <div className={styles.infoProdutos}>
           <div className={styles.titleProdutos}>
@@ -386,6 +378,14 @@ const Produto = () => {
             </button>
           </div>
         </div>
+        <div className={styles.descrição}>
+            <p>
+              {'Informações: '}
+              {produto.Descricao
+                ? produto.Descricao
+                : 'Nenhuma descrição disponível'}
+            </p>
+          </div>
       </div>
       <Modal
         isOpen={isModalOpen}
@@ -444,7 +444,7 @@ const Produto = () => {
             className={modalStyles.modalBtnConfirm}
             onClick={confirmarEndereco}
           >
-            Confirmar Endereço
+            Confirmar
           </button>
           <button className={modalStyles.modalBtnCancel} onClick={retornar}>
             Retornar

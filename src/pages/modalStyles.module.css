@@ -33,13 +33,19 @@
   border-radius: 8px;
   font-size: 1rem;
   background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+.modalSelect:focus {
+  border-color: #007bff; /* Cor do border quando em foco */
+  outline: none;
 }
 
 /* Preço */
 .modalPrice {
   font-size: 1.3rem;
   font-weight: bold;
-  color: #007bff;
+  color: #3a434b;
   margin-bottom: 20px;
   text-align: center;
 }
@@ -47,37 +53,86 @@
 /* Ações */
 .modalActions {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-/* Botões */
-.modal-btn {
-  flex: 1;
-  padding: 12px 15px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  justify-content: center; /* Centraliza os botões */
+  gap: 20px; /* Espaçamento de 20px entre os botões */
+  margin-top: 35px;
 }
 
 .modalBtnConfirm {
-  background-color: #28a745;
+  background-color: #28a745;/* Ações */
+  .modalActions {
+    display: flex;
+    justify-content: center; /* Centraliza os botões */
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  /* Botões */
+  .modal-btn {
+    /* Removido a margem à direita para garantir centralização */
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+  }
+  
+  /* Botão Confirmar */
+  .modalBtnConfirm {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .modalBtnConfirm:hover {
+    background-color: #218838;
+    box-shadow: 0 6px 10px rgba(0, 128, 0, 0.2); /* Efeito de sombra maior no hover */
+    transform: translateY(-2px); /* Efeito de elevação */
+  }
+  
+  /* Botão Cancelar */
+  .modalBtnCancel {
+    background-color: #e94444;
+    color: white;
+  }
+  
+  .modalBtnCancel:hover {
+    background-color: #c82333;
+    box-shadow: 0 6px 10px rgba(220, 53, 69, 0.3); /* Sombra maior no hover */
+    transform: translateY(-2px);
+  }
+  
   color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 16px;
 }
 
-.modal-btn.confirm:hover {
+.modalBtnConfirm:hover {
   background-color: #218838;
+  box-shadow: 0 6px 10px rgba(0, 128, 0, 0.2); /* Efeito de sombra maior no hover */
+  transform: translateY(-2px); /* Efeito de elevação */
 }
 
 .modalBtnCancel {
-  background-color: #dc3545;
+  background-color: #e94444;
   color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 16px;
 }
 
-.modal-btn.cancel:hover {
+.modalBtnCancel:hover {
   background-color: #c82333;
+  box-shadow: 0 6px 10px rgba(220, 53, 69, 0.3); /* Sombra maior no hover */
+  transform: translateY(-2px);
 }
 
 /* Animação */

@@ -42,11 +42,12 @@
 }
 
 .descrição {
-  flex: 2;
   margin: 20px;
   color: #555;
   font-size: 1em;
   line-height: 1.5;
+  margin-top: 30px;
+  display: flex;
 }
 
 .infoProdutos {
