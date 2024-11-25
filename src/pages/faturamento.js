@@ -28,7 +28,7 @@ const Faturamento = () => {
       const vendasSnapshot = await getDocs(collection(db, 'Vendas'))
       vendasSnapshot.forEach(docSnap => {
         const venda = docSnap.data()
-        totalReceitas += venda.ValorTotal || 0 // Verifica se o campo existe
+        totalReceitas += venda.PrecoTotal || 0 // Verifica se o campo existe
       })
 
       // Somar os valores da coleção Agendamentos para agendamentos finalizados
@@ -56,7 +56,7 @@ const Faturamento = () => {
       vendedoresSnapshot.forEach(docSnap => {
         const vendedor = docSnap.data()
         const salario = vendedor.Salario || 0
-        const bonificacao = (vendedor.VendasMes || 0) * 20 // Bonificação de 20 reais por venda
+        const bonificacao = (vendedor.VendasMes || 0) * 1 // Bonificação de 20 reais por venda
         totalDespesas += salario + bonificacao
       })
       setDespesas(totalDespesas)

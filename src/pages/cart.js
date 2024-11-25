@@ -210,6 +210,7 @@ const Cart = () => {
     })
 
     // Aplica a taxa de entrega se a opção for 'delivery', senão é zero
+    console.log(deliveryFee)
     const totalWithDelivery = itemTotal + deliveryFee
     setTotalPrice(totalWithDelivery)
   }, [cartItems, productQuantities, deliveryFee])
@@ -537,9 +538,11 @@ const Cart = () => {
         }}
       >
         <div className={style.title}><p>Endereço: {enderecoUsuario || 'Endereço não encontrado'}</p></div>
-        <select classNameonChange={e => handleDeliveryOptionChange(e.target.value)} className={style.modalSelect}>
-          <option value="store">Pickup from Store</option>
-          <option value="delivery">Home Delivery (+ R$ 10,00)</option>
+        <select onChange={e => handleDeliveryOptionChange(e.target.value)} 
+            className={style.modalSelect}
+          >
+          <option value="store">Pegar na loja</option>
+          <option value="delivery">Entrega em casa (+ R$ 10,00)</option>
         </select>
         {cartItems.length > 0 && (
           <>

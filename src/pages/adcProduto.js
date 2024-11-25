@@ -43,7 +43,7 @@ export const AdcProduto = () => {
         Nome: nome,
         Preco: Number.parseFloat(valor),
         priceID,
-        Descrição: descrição,
+        Descricao: descrição,
         Quantidade: Number.parseInt(quantidade),
         Imagem: fotoURL,
       })

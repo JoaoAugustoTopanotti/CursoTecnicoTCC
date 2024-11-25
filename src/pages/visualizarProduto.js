@@ -93,10 +93,30 @@ export const CrudProduto = () => {
 
   const saveEdits = async e => {
     e.preventDefault()
+
     try {
       const productDoc = doc(db, 'Produtos', editingProductId)
-      await updateDoc(productDoc, editFormData)
+
+      // Extraindo marca e categoria
+      const { categoria, marca, ...productData } = editFormData
+
+      // Atualizar os campos do documento principal, excluindo 'categoria' e 'marca'
+      await updateDoc(productDoc, productData)
+
+      // Atualizar subcoleção Marca
+      if (marca) {
+        const marcaDoc = doc(collection(productDoc, 'Marca'), marca)
+        await updateDoc(marcaDoc, { dummyField: true }) // Adiciona um campo fictício ou simplesmente assegura que o documento existe
+      }
+
+      // Atualizar subcoleção Categoria
+      if (categoria) {
+        const categoriaDoc = doc(collection(productDoc, 'Categoria'), categoria)
+        await updateDoc(categoriaDoc, { dummyField: true })
+      }
+
       alert('Produto atualizado com sucesso!')
+
       const updatedProdutos = Produtos.map(prod =>
         prod.id === editingProductId
           ? { ...editFormData, id: editingProductId }

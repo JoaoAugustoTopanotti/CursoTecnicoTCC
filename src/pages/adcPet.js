@@ -154,7 +154,7 @@ function AdicionarPet() {
         />
         <Autocomplete
           options={usuarios}
-          getOptionLabel={(option) => option.Nome || option.Email}
+          getOptionLabel={(option) => option.login || option.email}
           onChange={(event, newValue) =>
             setUsuarioID(newValue ? newValue.id : '')
           }

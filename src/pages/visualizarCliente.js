@@ -36,7 +36,7 @@ export const CrudCliente = () => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
     const filtered = usuarios.filter(user =>
-      user.Nome.toLowerCase().includes(term)
+      user.login.toLowerCase().includes(term)
     );
     setFilteredUsuarios(filtered);
   };
@@ -112,17 +112,15 @@ export const CrudCliente = () => {
             }`}
           >
             <div className={style.userDetails}>
-              <p>Nome: {user.Nome}</p>
-              <p>Email: {user.Email}</p>
-              <p>Endereço: {user.Endereco}</p>
-              <p>CPF: {user.CPF}</p>
-              <p>Telefone: {user.Telefone}</p>
-              <p>
-                Data de Nascimento:{' '}
-                {user.DataNascimento
-                  ? user.DataNascimento.toDate().toLocaleDateString()
-                  : 'Não disponível'}
-              </p>
+              {user.login && <p>Login: {user.login}</p>}
+              {user.Nome && <p>Nome: {user.Nome}</p>}
+              {user.email && <p>Email: {user.email}</p>}
+              {user.Endereco && <p>Endereço: {user.Endereco}</p>}
+              {user.CPF && <p>CPF: {user.CPF}</p>}
+              {user.Telefone && <p>Telefone: {user.Telefone}</p>}
+              {user.DataNascimento && (
+                <p>Data de Nascimento: {user.DataNascimento.toDate().toLocaleDateString()}</p>
+              )}
               <div className={style.buttons}>
                 <button
                   className={style.editButton}

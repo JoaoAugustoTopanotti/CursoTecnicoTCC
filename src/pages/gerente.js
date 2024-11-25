@@ -5,13 +5,13 @@ import styles from './Gerente.module.css'
 
 // Importando os componentes existentes
 import VendaConsumidor from './vendaConsumidor'
-import AdcCliente from './AdcCliente'
-import VisualizarCliente from './VisualizarCliente'
+import AdcCliente from './adcCliente'
+import VisualizarCliente from './visualizarCliente'
 import AdcProduto from './AdcProduto'
 import VisualizarProduto from './VisualizarProduto'
 import AdcVendedor from './AdcVendedor'
 import VisualizarVendedor from './VisualizarVendedor'
-import AdcPet from './AdcPet'
+import AdcPet from './adcPet'
 import VisualizarAgenda from './VisualizarAgenda'
 import Faturamento from './Faturamento'
 
@@ -40,7 +40,12 @@ function Gerente() {
   const renderContent = () => {
     switch (activePage) {
       case 'home':
-        return <div className={styles.lotoTeT}><h2>Bem-vindo, {nomeGerente}!</h2><img src="/logoTeT.png" alt="Logo" width={550}/></div>
+        return (
+          <div className={styles.lotoTeT}>
+            <h2>Bem-vindo, {nomeGerente}!</h2>
+            <img src="/logoTeT.png" alt="Logo" width={550} />
+          </div>
+        )
       case 'vendaConsumidor':
         return <VendaConsumidor />
       case 'adcCliente':
@@ -62,10 +67,7 @@ function Gerente() {
       case 'faturamento':
         return <Faturamento />
       default:
-        return (
-          <h1>Error 404!, nenhuma página encontrada</h1>
-        )
-          
+        return <h1>Error 404!, nenhuma página encontrada</h1>
     }
   }
 
@@ -74,21 +76,33 @@ function Gerente() {
       <aside className={styles.sidebar}>
         <h2>Menu</h2>
         <ul>
-          <li onClick={() => setActivePage('vendaConsumidor')}>Venda ao Consumidor</li>
+          <li onClick={() => setActivePage('vendaConsumidor')}>
+            Venda ao Consumidor
+          </li>
           <li onClick={() => setActivePage('adcCliente')}>Adicionar Cliente</li>
-          <li onClick={() => setActivePage('visualizarCliente')}>Visualizar Clientes</li>
+          <li onClick={() => setActivePage('visualizarCliente')}>
+            Visualizar Clientes
+          </li>
           <li onClick={() => setActivePage('adcProduto')}>Adicionar Produto</li>
-          <li onClick={() => setActivePage('visualizarProduto')}>Visualizar Produtos</li>
-          <li onClick={() => setActivePage('adcVendedor')}>Adicionar Vendedor</li>
-          <li onClick={() => setActivePage('visualizarVendedor')}>Visualizar Vendedores</li>
-          <li onClick={() => setActivePage('adcPet')}>Adicionar Pet Banho e Tosa</li>
-          <li onClick={() => setActivePage('visualizarAgenda')}>Visualizar Agenda</li>
+          <li onClick={() => setActivePage('visualizarProduto')}>
+            Visualizar Produtos
+          </li>
+          <li onClick={() => setActivePage('adcVendedor')}>
+            Adicionar Vendedor
+          </li>
+          <li onClick={() => setActivePage('visualizarVendedor')}>
+            Visualizar Vendedores
+          </li>
+          <li onClick={() => setActivePage('adcPet')}>
+            Adicionar Pet Banho e Tosa
+          </li>
+          <li onClick={() => setActivePage('visualizarAgenda')}>
+            Visualizar Agenda
+          </li>
           <li onClick={() => setActivePage('faturamento')}>Faturamento</li>
         </ul>
       </aside>
-      <main className={styles.content}>
-        {renderContent()}
-      </main>
+      <main className={styles.content}>{renderContent()}</main>
     </div>
   )
 }

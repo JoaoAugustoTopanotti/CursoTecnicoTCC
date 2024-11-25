@@ -6,6 +6,7 @@ import { doc, setDoc } from 'firebase/firestore'
 import styles from './register.module.css'
 
 const Register = () => {
+  const [login, setLogin] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -31,11 +32,12 @@ const Register = () => {
       const user = userCredential.user
 
       await setDoc(doc(db, 'Usuario', user.uid), {
+        login: login,
         email: user.email,
         uid: user.uid,
       })
 
-      router.push('/login')
+      router.push('/Autenticacao/login')
     } catch (error) {
       setErrorMessage(`Erro ao registrar: ${error.message}`)
     }
@@ -46,6 +48,14 @@ const Register = () => {
       <div className={styles.formWrapper}>
         <h2 className={styles.title}>Registrar</h2>
         <form onSubmit={handleRegister}>
+          <input
+            type="login"
+            placeholder="Login"
+            value={login}
+            onChange={e => setLogin(e.target.value)}
+            required
+            className={styles.input}
+          />
           <input
             type="email"
             placeholder="Email"

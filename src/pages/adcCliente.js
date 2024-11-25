@@ -39,6 +39,7 @@ const formatarTelefone = valor => {
 }
 
 const AdcCliente = () => {
+  const [login, setLogin] = useState('')
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [endereco, setEndereco] = useState('')
@@ -96,11 +97,12 @@ const AdcCliente = () => {
       const user = userCredential.user
 
       const dataNascimentoTimestamp = dataNascimento
-      ? Timestamp.fromDate(new Date(dataNascimento))
-      : null
+        ? Timestamp.fromDate(new Date(dataNascimento))
+        : null
 
       await setDoc(doc(db, 'Usuario', user.uid), {
-        Email: user.email,
+        login: login,
+        email: user.email,
         uid: user.uid,
         Nome: nome,
         Endereco: endereco,
@@ -119,6 +121,13 @@ const AdcCliente = () => {
   return (
     <div className={style.container}>
       <h1 className={style.titulo}>Adicionar Clientes</h1>
+      <input
+        className={style.input}
+        type="text"
+        placeholder="Login"
+        value={login}
+        onChange={e => setLogin(e.target.value)}
+      />
       <input
         className={style.input}
         type="text"
