@@ -9,7 +9,17 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     margin-top: 125px;
   }
+
+  .btnlogo{
+    border: none;
+    cursor: pointer;
+    background: none;
+  }
   
+  .btnlogo:hover{
+    transform: scale(1.04);
+  }
+
   .title {
     font-size: 2rem;
     color: #333;
@@ -90,7 +100,7 @@
   }
   
   .menu {
-    background-color: #ffffff;
+    background-color: #ffc06d;
     display: flex;
     height: 85px;
     box-shadow: rgb(177, 174, 174) 0px 2px 4px;

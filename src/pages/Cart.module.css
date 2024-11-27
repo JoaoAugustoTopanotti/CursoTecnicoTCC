@@ -1,8 +1,18 @@
 .menu {
-  background-color: #ffffff;
+  background-color: #ffc06d;
   display: flex;
   height: 85px;
   box-shadow: rgb(177, 174, 174) 0px 2px 4px;
+}
+
+.btnlogo{
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+.btnlogo:hover{
+  transform: scale(1.04);
 }
 
 .title {

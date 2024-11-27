@@ -271,13 +271,19 @@ function Agendamento() {
     return <div>Você precisa estar logado para agendar um banho e tosa.</div>
   }
 
+  const btnhome = async () => {
+    router.push('/')
+}
+
   return (
     <div className={styles.container}>
       <div className="Menu">
         <header className={styles.menu}>
-          <div className={styles.logo}>
-            <img src="/logo.png" alt="Logo" />
-          </div>
+        <button className={styles.btnlogo} onClick={btnhome}>              
+              <div className={styles.logo}>
+                <img src="/logo.png" alt="Logo" />
+              </div>
+            </button>
           <nav className={styles.nav}>
             <ul className={styles.navList}>
               <div className={styles.searchBar}>

@@ -13,6 +13,16 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.btnlogo{
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+.btnlogo:hover{
+  transform: scale(1.04);
+}
+
 .titleProdutos {
   width: 100%;
   text-align: center;
@@ -121,7 +131,7 @@
   }
 }
 .menu {
-  background-color: #ffffff;
+  background-color: #ffc06d;
   display: flex;
   height: 85px;
   box-shadow: rgb(177, 174, 174) 0px 2px 4px;
