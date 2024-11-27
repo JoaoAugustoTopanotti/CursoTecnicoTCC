@@ -4,7 +4,11 @@ import { db } from '../components/firebaseConfig'
 import style from './adcCliente.module.css'
 import { useRouter } from 'next/router'
 import { collection, setDoc, doc } from 'firebase/firestore'
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth'
 import { Timestamp } from 'firebase/firestore' // Adicione esta importação
 
 const usersCollectionRef = collection(db, 'Usuario')
@@ -88,7 +92,17 @@ const AdcCliente = () => {
     }
 
     const auth = getAuth()
+    const gerenteAtual = auth.currentUser // Salva o gerente autenticado
+    const gerenteEmail = gerenteAtual.email
+    const gerenteSenha = prompt('Confirme sua senha para continuar:')
+
+    if (!gerenteSenha) {
+      setErrorMessage('A senha do gerente é necessária para continuar.')
+      return
+    }
+
     try {
+      // Cria o novo usuário
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -100,6 +114,7 @@ const AdcCliente = () => {
         ? Timestamp.fromDate(new Date(dataNascimento))
         : null
 
+      // Salva os dados do novo usuário no Firestore
       await setDoc(doc(db, 'Usuario', user.uid), {
         login: login,
         email: user.email,
@@ -111,10 +126,14 @@ const AdcCliente = () => {
         DataNascimento: dataNascimentoTimestamp,
       })
 
+      // Restaura o login do gerente
+      await signInWithEmailAndPassword(auth, gerenteEmail, gerenteSenha)
+
       setErrorMessage('')
-      alert('Usuário Cadastrado com Sucesso!')
+      alert('Usuário cadastrado com sucesso e login do gerente restaurado!')
+      router.push('/gerente') // Opcional: redireciona para a página do gerente
     } catch (error) {
-      setErrorMessage(`Erro ao registrar: ${error.message}`)
+      setErrorMessage(`Erro ao registrar ou restaurar login: ${error.message}`)
     }
   }
 
