@@ -1,0 +1,121 @@
+.menu {
+  background-color: #ffc06d;
+  display: flex;
+  height: 85px;
+  box-shadow: rgb(177, 174, 174) 0px 2px 4px;
+}
+
+.btnlogo {
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+.btnlogo:hover {
+  transform: scale(1.04);
+}
+
+.logo {
+  margin-top: -6px;
+  margin-left: 20px;
+}
+
+.logo img {
+  width: 100px;
+  height: 100px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 30px;
+}
+
+.navItem {
+  width: 28px;
+  height: 28px;
+  margin-left: 70px;
+}
+
+.navItem a {
+  text-decoration: none;
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+.navItem a:hover {
+  color: #0056b3;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.searchBar input {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  transition: border-color 0.3s ease;
+  width: 380px;
+  margin-left: 385px;
+  height: 38px;
+}
+
+.searchBar input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.imgLupa img {
+  width: 25px;
+  margin-left: 1500%;
+}
+
+.button {
+  background-color: transparent;
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-left: 160px;
+}
+
+.button:hover {
+  background-color: #488bd3;
+  color: #ffffff;
+}
+
+.cartButton,
+.navItem button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 5px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cartButton img,
+.navItem button img {
+  width: 30px;
+  height: 30px;
+}
+
+.cartButton:hover,
+.navItem button:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}

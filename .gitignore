@@ -4,12 +4,17 @@ node_modules/
 # Ignorar arquivos de log
 *.log
 
-# Ignorar arquivos de configuração do sistema
+# Ignorar variáveis de ambiente (segredos) — mantenha apenas .env.example versionado
 .env*
-
+!.env.example
 
 .vercel
 
+# Pasta com segredos do Firebase Admin (ex.: config/firebaseSecret.json)
 config
+
+# Chave do Firebase Admin SDK — NUNCA versionar
+src/serviceAccount.json
+serviceAccount.json
 
 .next/
